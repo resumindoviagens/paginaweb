@@ -100,7 +100,11 @@ ${KNOWLEDGE_BASE}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
+        model: (
+          process.env.OPENAI_MODEL &&
+          process.env.OPENAI_MODEL.trim() &&
+          process.env.OPENAI_MODEL.trim() !== "OPENAI_MODEL"
+        ) ? process.env.OPENAI_MODEL.trim() : "gpt-5-mini",
         instructions,
         input: conversationText(history, question),
         max_output_tokens: 500,

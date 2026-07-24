@@ -101,9 +101,11 @@ export default async function handler(req, res) {
     </div>
   </body></html>`;
 
-  const toEmail = process.env.CHAT_EMAIL_TO || "contato@resumindoviagens.com.br";
-  const fromEmail = process.env.CHAT_EMAIL_FROM || "contato@resumindoviagens.com.br";
-  const fromName = process.env.CHAT_EMAIL_FROM_NAME || "Chatbox Resumindo Viagens";
+  // Endereços definidos diretamente no servidor para evitar valores inválidos
+  // cadastrados por engano nas variáveis de ambiente da Vercel.
+  const toEmail = "contato@resumindoviagens.com.br";
+  const fromEmail = "contato@resumindoviagens.com.br";
+  const fromName = "Chatbox Resumindo Viagens";
   const shortId = sessionId.slice(0, 8);
 
   const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -128,7 +130,11 @@ export default async function handler(req, res) {
   const payload = await brevoResponse.json().catch(() => ({}));
   if (!brevoResponse.ok) {
     console.error("Brevo API error", brevoResponse.status, payload);
-    return res.status(502).json({error: "Não foi possível enviar o resumo por e-mail."});
+    return res.status(502).json({
+      error: "Não foi possível enviar o resumo por e-mail.",
+      providerStatus: brevoResponse.status,
+      providerCode: payload?.code || null
+    });
   }
 
   return res.status(200).json({ok: true, messageId: payload.messageId || null});

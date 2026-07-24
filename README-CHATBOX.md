@@ -81,3 +81,19 @@ Fechar apenas a aba do navegador não garante o envio, porque navegadores podem 
 ## Custos
 
 As respostas aprovadas de assuntos comuns são locais e não chamam a OpenAI. Dúvidas abertas chamam a API da OpenAI e geram custo de uso na conta da API. O envio do histórico usa a API transacional do Brevo.
+
+
+## CORREÇÃO V2 — CONFIGURAÇÃO SIMPLIFICADA
+
+O remetente e o destinatário dos relatórios agora estão definidos diretamente
+no código como contato@resumindoviagens.com.br.
+
+Na Vercel, mantenha somente:
+- OPENAI_API_KEY: chave verdadeira da OpenAI.
+- OPENAI_MODEL: gpt-5-mini (opcional; se ausente, o sistema usa gpt-5-mini).
+- BREVO_API_KEY: chave API v3 verdadeira e ativa do Brevo.
+
+As variáveis CHAT_EMAIL_FROM, CHAT_EMAIL_TO e CHAT_EMAIL_FROM_NAME podem ser
+excluídas da Vercel. Elas não são mais utilizadas por esta versão.
+
+Depois de substituir os arquivos no GitHub, faça um novo deployment na Vercel.
