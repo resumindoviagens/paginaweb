@@ -55,4 +55,56 @@
 <section class="cta"><div class="container cta-box"><div><span class="eyebrow">Seu sonho, nosso compromisso!</span><h2>Receba atendimento personalizado.</h2></div><a href="https://wa.me/5511981210932" target="_blank">Chamar no WhatsApp</a></div></section></main>
 <footer id="contato" class="footer"><div class="container footer-grid"><div><h3>Resumindo Viagens</h3><p>Assessoria em vistos, passaportes, viagens internacionais e produtos turísticos.</p></div><div><h3>Contato</h3><p><a href="https://wa.me/5511981210932" target="_blank">(11) 98121-0932</a></p><p><a href="mailto:contato@resumindoviagens.com.br">contato@resumindoviagens.com.br</a></p><p><a href="https://instagram.com/resumindoviagens" target="_blank">@resumindoviagens</a></p></div></div></footer>
 <div class="modal" id="modal" aria-hidden="true"><div class="modal-backdrop" id="modalBackdrop"></div><div class="modal-card"><button class="modal-close" id="modalClose">×</button><img id="modalImg" src="" alt=""><div class="modal-content"><h2 id="modalTitle"></h2><p id="modalShort"></p><ul id="modalBullets"></ul><p id="modalClosing" class="closing"></p><a id="modalWhats" class="modal-whats" href="https://wa.me/5511981210932" target="_blank">Quero atendimento sobre este serviço</a></div></div></div>
+
+<!-- CHATBOX INTELIGENTE RESUMINDO VIAGENS -->
+<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Abrir assistente virtual" aria-expanded="false">
+  <span class="chat-launcher-icon">✦</span>
+  <span>Fale com a Resumindo</span>
+</button>
+
+<section class="chatbox" id="chatbox" aria-hidden="true" aria-label="Assistente virtual da Resumindo Viagens">
+  <header class="chatbox-header">
+    <div class="chatbox-brand">
+      <span class="chatbox-logo">✈</span>
+      <div>
+        <strong>Assistente Resumindo</strong>
+        <small>Respostas automáticas e atendimento seguro</small>
+      </div>
+    </div>
+    <button class="chatbox-close" id="chatClose" type="button" aria-label="Minimizar chat">×</button>
+  </header>
+
+  <div class="chatbox-privacy">
+    <strong>Privacidade:</strong> este assistente não acessa cadastros, processos ou dados de clientes e não pode alterar informações no sistema. Não envie CPF, número de passaporte, data de nascimento, protocolo ou documentos. Ao encerrar, as perguntas e respostas desta conversa serão enviadas para <strong>contato@resumindoviagens.com.br</strong> para controle de qualidade.
+  </div>
+
+  <div class="chatbox-profile">
+    <label for="chatName">Como podemos chamar você? <span>(opcional)</span></label>
+    <input id="chatName" maxlength="60" autocomplete="given-name" placeholder="Primeiro nome">
+  </div>
+
+  <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+
+  <div class="chat-quick" id="chatQuick">
+    <button type="button" data-question="Como funciona a assessoria para o primeiro visto americano?">Primeiro visto americano</button>
+    <button type="button" data-question="Como funciona a renovação do visto americano?">Renovação do visto</button>
+    <button type="button" data-question="Vocês ajudam após uma negativa de visto?">Orientação após negativa</button>
+    <button type="button" data-question="Como funciona a assessoria para emissão de passaporte?">Passaporte</button>
+    <button type="button" data-question="Quais serviços vocês oferecem para planejar uma viagem?">Planejamento da viagem</button>
+    <button type="button" data-question="Quero falar com uma pessoa pelo WhatsApp.">Falar com atendente</button>
+  </div>
+
+  <form class="chat-form" id="chatForm">
+    <label class="sr-only" for="chatInput">Digite sua pergunta</label>
+    <textarea id="chatInput" rows="1" maxlength="1200" placeholder="Digite sua dúvida..." required></textarea>
+    <button id="chatSend" type="submit" aria-label="Enviar pergunta">➤</button>
+  </form>
+
+  <div class="chatbox-actions">
+    <button class="chat-end" id="chatEnd" type="button">Encerrar e enviar resumo</button>
+    <a class="chat-whatsapp" id="chatWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <p class="chatbox-status" id="chatStatus" role="status"></p>
+</section>
+
 <a class="floating" href="https://wa.me/5511981210932" target="_blank">WhatsApp</a><script src="script.js"></script></body></html>
