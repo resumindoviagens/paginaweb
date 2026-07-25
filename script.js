@@ -101,8 +101,8 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     if (state.messages.length) {
       state.messages.forEach(renderMessage);
     } else {
-      addMessage('assistant', 'Olá! Sou o assistente virtual da Resumindo Viagens. Posso responder dúvidas gerais sobre vistos, passaporte, seguro viagem, passagens, hotéis, Orlando, Europa, locação de veículos e planejamento. Não tenho acesso ao cadastro ou ao processo de nenhuma pessoa.', false);
-      addMessage('system', 'Para proteger sua privacidade, não envie documentos nem dados pessoais. Para consulta individual, análise aprofundada ou atendimento humano, use o WhatsApp da Resumindo.', false);
+      addMessage('assistant', 'Olá! Sou o Chatbox Resumindo Viagens. Posso explicar nossos serviços, comparar opções e ajudar você a entender vistos, passaporte, seguro viagem, passagens, hotéis, Orlando, Europa, locação de veículos e planejamento.', false);
+      addMessage('system', 'Para proteger sua privacidade, não envie documentos, CPF, número de passaporte, senhas ou outros dados pessoais.', false);
     }
     nameInput.value = state.name || '';
   }

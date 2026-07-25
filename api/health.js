@@ -2,7 +2,7 @@ export default function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, max-age=0");
   return res.status(200).json({
     ok: true,
-    version: "chatbox-corrigido-v2",
+    version: "chatbox-respostas-melhoradas-v3",
     openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
     openaiModel: (
       process.env.OPENAI_MODEL &&
