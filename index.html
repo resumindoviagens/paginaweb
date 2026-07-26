@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resumindo Viagens | Catálogo completo</title><meta name="description" content="Catálogo completo da Resumindo Viagens.">
+<title>Resumindo Viagens | Catálogo completo</title><link rel="icon" type="image/png" href="assets/favicon.png"><meta name="description" content="Catálogo completo da Resumindo Viagens.">
 <link rel="stylesheet" href="style.css"></head><body>
 <header class="header"><div class="container nav"><a href="#inicio" class="logo"><span class="logo-mark">✈</span><span><strong>RESUMINDO</strong><small>VIAGENS</small></span></a><nav class="menu"><a href="#sobre">Sobre</a><a href="#catalogo">Catálogo</a><a href="#valores">Valores</a><a href="#contato">Contato</a></nav><a class="whats" href="https://wa.me/5511981210932" target="_blank">WhatsApp</a></div></header>
 <main id="inicio"><section class="hero"><div class="container hero-grid"><div class="hero-text"><span class="eyebrow">Catálogo Resumindo Viagens</span><h1>Soluções completas para sua viagem internacional.</h1><p>Vistos, passaporte, seguro viagem, passagens, hotéis, Orlando, Europa, Canadá, ESTA, atendimento internacional e planejamento personalizado.</p><div class="hero-actions"><a class="primary" href="#catalogo">Ver catálogo completo</a><a class="secondary" href="https://wa.me/5511981210932" target="_blank">Falar com a Resumindo</a></div></div><div class="hero-art"><img src="assets/orlando.png" alt="Resumindo Viagens"></div></div></section>
@@ -68,14 +68,14 @@
       <span class="chatbox-logo">✈</span>
       <div>
         <strong>Assistente Resumindo</strong>
-        <small>Respostas automáticas e atendimento seguro</small>
+        <small id="chatMode">Iniciando atendimento...</small>
       </div>
     </div>
     <button class="chatbox-close" id="chatClose" type="button" aria-label="Minimizar chat">×</button>
   </header>
 
   <div class="chatbox-privacy">
-    <strong>Privacidade:</strong> este assistente não acessa cadastros, processos ou dados de clientes e não pode alterar informações no sistema. Não envie CPF, número de passaporte, data de nascimento, protocolo ou documentos. Ao encerrar, as perguntas e respostas desta conversa serão enviadas para <strong>contato@resumindoviagens.com.br</strong> para controle de qualidade.
+    <strong>Privacidade:</strong> este assistente não acessa cadastros, processos ou dados de clientes e não pode alterar informações no sistema. Não envie CPF, número de passaporte, data de nascimento, protocolo ou documentos. As mensagens ficam registradas no banco exclusivo do chatbot e, ao encerrar, o resumo é enviado para <strong>contato@resumindoviagens.com.br</strong>.
   </div>
 
   <div class="chatbox-profile">
@@ -91,6 +91,7 @@
     <button type="button" data-question="O que é o DS-160?">O que é DS-160?</button>
     <button type="button" data-question="Quais serviços a Resumindo oferece?">Todos os serviços</button>
     <button type="button" data-question="Como funciona o seguro viagem?">Seguro viagem</button>
+    <button type="button" id="chatTriage">Iniciar triagem</button>
   </div>
 
   <form class="chat-form" id="chatForm">
@@ -100,10 +101,11 @@
   </form>
 
   <div class="chatbox-actions">
-    <button class="chat-end" id="chatEnd" type="button">Encerrar e enviar resumo</button>
+    <button class="chat-human hidden" id="chatHuman" type="button">Falar com atendente aqui</button>
+    <button class="chat-end" id="chatEnd" type="button">Encerrar</button>
     <a class="chat-whatsapp" id="chatWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener">WhatsApp</a>
   </div>
   <p class="chatbox-status" id="chatStatus" role="status"></p>
 </section>
 
-<a class="floating" href="https://wa.me/5511981210932" target="_blank">WhatsApp</a><script src="script.js"></script></body></html>
+<a class="floating" href="https://wa.me/5511981210932" target="_blank">WhatsApp</a><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="script.js"></script></body></html>

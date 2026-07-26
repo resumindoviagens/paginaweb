@@ -42,7 +42,7 @@
 .chat-form textarea:focus{border-color:#0c3e86;box-shadow:0 0 0 3px rgba(12,62,134,.10)}
 .chat-form button{border:0;border-radius:14px;background:#06183b;color:#f0a000;font-size:19px;font-weight:900;cursor:pointer}
 .chat-form button:disabled,.chat-form textarea:disabled{opacity:.55;cursor:not-allowed}
-.chatbox-actions{display:grid;grid-template-columns:1fr auto;gap:8px;padding:0 11px 9px;background:#fff}
+.chatbox-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 11px 9px;background:#fff}
 .chat-end{border:1px solid #d7dfeb;background:#f6f8fb;color:#243954;border-radius:11px;padding:9px 10px;font-weight:800;font-size:11px;cursor:pointer}
 .chat-whatsapp{background:#25d366;color:#fff;border-radius:11px;padding:9px 13px;font-weight:900;font-size:11px}
 .chatbox-status{min-height:22px;padding:2px 12px 8px;background:#fff;color:#586980;font-size:10px;text-align:center}
@@ -51,3 +51,15 @@
 .floating{right:22px!important;bottom:88px!important;z-index:70!important;padding:11px 15px!important;font-size:12px!important}
 .chatbox.open~.floating{display:none}
 @media(max-width:600px){.chat-launcher{right:12px;bottom:12px}.chatbox{right:6px;bottom:72px;width:calc(100vw - 12px);height:calc(100vh - 84px);border-radius:18px}.floating{right:12px!important;bottom:72px!important}.chatbox-privacy{font-size:10px}.chatbox-profile{align-items:flex-start;flex-direction:column}.chatbox-profile input{width:100%}}
+
+
+/* Atendimento ao vivo e triagem — v4.1 */
+.chat-human{border:1px solid #b9dac5;background:#e7f7ed;color:#116838;border-radius:11px;padding:9px 10px;font-weight:900;font-size:11px;cursor:pointer}
+.chat-human.hidden{display:none}
+.chatbox-actions>*{flex:1}
+.human-label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#13713a;font-weight:900;margin-bottom:4px}
+.chat-choice-actions{display:flex;gap:6px;flex-wrap:wrap}
+.chat-quick .triage-skip{background:#f6f8fb;color:#44566d;border-color:#d7dfeb}
+.chat-quick .triage-cancel{background:#fff0f0;color:#8f2d2d;border-color:#efcaca}
+.chatbox-status.error{color:#a52b2b}
+.chatbox-status.success{color:#147b43}

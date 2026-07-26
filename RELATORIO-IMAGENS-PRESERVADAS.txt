@@ -1,0 +1,32 @@
+RELATÓRIO DE IMAGENS PRESERVADAS — V4.1
+
+Origem: paginaweb-main.zip
+Total de arquivos em assets: 25
+Resultado: todos os arquivos foram preservados byte por byte.
+
+ARQUIVO | DIMENSÕES/FORMATO | SHA-256
+atendimento-internacional.png | 1254x1254 PNG | 1169a97aed6f78cfb127cb535f4641243d4705f0f68a83b112d269fbe1a52823
+esta.png | 375x248 PNG | b11c14bec8f4abbb3db5f10bb09088eca49c8b0ff18221012f67245cf3a55983
+europa.png | 373x249 PNG | 0085cda16ecfc606f70bcd87845cee94449f133bc40c86d6f7442b6c54e6ca41
+favicon.png | 180x180 PNG | 8bcfba8056d7071783199fd9742225f727e6a729775f34f3f0851787e46ea6c0
+fora-brasil.png | 1254x1254 PNG | 5282d3f3a1f73f3e64e996d18883a31454336ee3041bde5e151cd2c0c8a80ea7
+hero.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+hoteis.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+hoteis.png | 371x259 PNG | acc2958c4c0568cb17f12194ad4d170e2fd59ed81d767632e66a575f17a13a9e
+locacao-carro.png | 1254x1254 PNG | 9c54b1399a7a70abf6ca24785819b0a2749c3cf236a09c151e7870027d0afa2e
+locacao-veiculos.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+logo-resumindo.png | 1200x360 PNG | 39ce3555136e4428a42517597ff389330fda1388924bfe6006c5290ef41e9c39
+orientacao-negativa.png | 377x280 PNG | 0b060d4cadabbc9d3b77d8298c5d3ee40d4b1e95fdfca171213782242fac980e
+orlando.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+orlando.png | 372x260 PNG | 924579bf30e712648baad6a399160f26f08ea1d1c32e5d31c5ef7892380aa34b
+passagens.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+passagens.png | 379x258 PNG | c78fd0b6b0ec0fca0bbfa1015513d1ecab0f7a68da9f19c432bd2bcda97e17cd
+passaporte.jpg | 615x852 JPEG | bfcfa705df8cad609703ed3852023273ef6ce5384a626705f0ebc918075cb166
+passaporte.png | 373x294 PNG | 2bea56adf1cd79163c7ad359fc410dc5769e47d4a7f7df2b25d2b40af0102de3
+planejamento.png | 371x249 PNG | 4a83f62a42726790fc5607132c568ab4fdf6551c95834eec3166a1f78a54fbe1
+primeiro-visto.png | 375x294 PNG | dcea490ffefa665a164fa2747f9e253811a12df904667720cd28708a2e88251d
+renovacao-visto.png | 379x289 PNG | 0adbf1d0745d5ac9a75c2f6faf848c926fb5598458647902fb7d69d8be7a7078
+seguro-viagem.jpg | 616x852 JPEG | 640ddccd08ce76345f3b47e11602e0f62d09d701c576533056f33e16c82447a7
+seguro-viagem.png | 366x257 PNG | a175a64c1b738b13191695dca488cbf6a0fe23d309bd2072c0de5180992a5131
+visto-americano.jpg | 615x852 JPEG | c8775cb79386103e981acfd1f6b9006d1c5c92c6f2263e4b3cdd3f9563f1445f
+visto-canadense.png | 376x248 PNG | 40c1c3b207fb21f5929ca85a0c4f94bdcd70b05a882430b83ede8c4127a12f8c
