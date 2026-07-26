@@ -6,8 +6,9 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 (() => {
   const $ = selector => document.querySelector(selector);
   const WHATSAPP_DEFAULT = '5511981210932';
-  const STORAGE_KEY = 'resumindo_live_chat_v41';
-  const VERSION = 'painel-chat-v4.1-imagens-preservadas';
+  const STORAGE_KEY = 'resumindo_live_chat_v42';
+  const TRIAGE_WHATSAPP_KEY = 'resumindo_triage_whatsapp_v42';
+  const VERSION = 'painel-chat-v4.2-logo-whatsapp-corrigido';
 
   const launcher = $('#chatLauncher');
   const chatbox = $('#chatbox');
@@ -37,6 +38,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   let busy = false;
   let finalizing = false;
   let conversationStarted = false;
+  let whatsappPrefillText = sessionStorage.getItem(TRIAGE_WHATSAPP_KEY) || '';
   const seenMessages = new Set();
 
   const escapeText = value => String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -70,7 +72,21 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 
   function whatsappUrl(text = '') {
     const number = String(settings.whatsapp_number || WHATSAPP_DEFAULT).replace(/\D/g, '') || WHATSAPP_DEFAULT;
-    return `https://wa.me/${number}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+    const url = new URL('https://api.whatsapp.com/send/');
+    url.searchParams.set('phone', number);
+    if (text) url.searchParams.set('text', text);
+    return url.toString();
+  }
+
+  function defaultWhatsAppMessage() {
+    const firstName = nameInput.value.trim().slice(0, 60);
+    return `Olá! Vim pelo Chatbox Resumindo Viagens.${firstName ? ` Meu nome é ${firstName}.` : ''}\n\nGostaria de continuar meu atendimento.`;
+  }
+
+  function updateWhatsAppLink() {
+    const message = whatsappPrefillText || defaultWhatsAppMessage();
+    whatsappBtn.href = whatsappUrl(message);
+    whatsappBtn.classList.toggle('has-triage', Boolean(whatsappPrefillText));
   }
 
   function linkifySafeText(text) {
@@ -153,9 +169,14 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     if (!session?.user?.id) throw new Error('Não foi possível criar a sessão segura do visitante.');
 
     const stored = safeStoredState();
-    sessionId = stored?.userId === session.user.id && stored?.sessionId
-      ? stored.sessionId
-      : crypto.randomUUID();
+    const canReuseStoredSession = stored?.version === VERSION &&
+      stored?.userId === session.user.id &&
+      stored?.sessionId;
+    if (!canReuseStoredSession) {
+      sessionStorage.removeItem(TRIAGE_WHATSAPP_KEY);
+      whatsappPrefillText = '';
+    }
+    sessionId = canReuseStoredSession ? stored.sessionId : crypto.randomUUID();
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ sessionId, userId: session.user.id, version: VERSION }));
 
     const { error: sessionCreateError } = await db.rpc('create_chat_session', {
@@ -173,7 +194,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     const { data, error } = await db.from('chat_settings').select('*');
     if (error) throw error;
     settings = Object.fromEntries((data || []).map(item => [item.key, item.value]));
-    whatsappBtn.href = whatsappBtn.dataset.triageHref || whatsappUrl();
+    updateWhatsAppLink();
     updateHumanButton();
   }
 
@@ -394,9 +415,9 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     input.placeholder = 'Digite sua dúvida...';
 
     const message = `Olá! Vim pelo Chatbox Resumindo Viagens e concluí a triagem.\n\n${summary}\n\nCódigo da triagem: ${code}\n\nGostaria de receber os próximos passos e valores.`;
-    const url = whatsappUrl(message);
-    whatsappBtn.href = url;
-    whatsappBtn.dataset.triageHref = url;
+    whatsappPrefillText = message;
+    sessionStorage.setItem(TRIAGE_WHATSAPP_KEY, message);
+    updateWhatsAppLink();
     whatsappBtn.textContent = 'Continuar no WhatsApp';
     localMessage(`Pronto! Sua triagem foi organizada com o código ${code}. Ao abrir o WhatsApp, as respostas já estarão preenchidas; basta conferir e enviar.`, 'system');
     setStatus('Triagem concluída.', 'success');
@@ -455,13 +476,22 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     }
   }
 
-  function openWhatsAppAndClose(event) {
-    event.preventDefault();
-    const url = event.currentTarget.href || whatsappUrl();
-    window.open(url, '_blank', 'noopener');
-    if (conversationStarted && sessionStatus !== 'closed') {
-      finalize('encaminhado para atendimento pelo WhatsApp', { silent: true, keepalive: true });
+  function prepareWhatsAppLink(event) {
+    const message = whatsappPrefillText || defaultWhatsAppMessage();
+    event.currentTarget.href = whatsappUrl(message);
+    event.currentTarget.target = '_blank';
+    event.currentTarget.rel = 'noopener noreferrer';
+
+    if (navigator.clipboard && whatsappPrefillText) {
+      navigator.clipboard.writeText(whatsappPrefillText).catch(() => {});
     }
+
+    setStatus(
+      whatsappPrefillText
+        ? 'O WhatsApp foi aberto com a triagem preenchida. Esta conversa continua ativa aqui.'
+        : 'O WhatsApp foi aberto. Esta conversa continua ativa aqui.',
+      'success'
+    );
   }
 
   launcher.addEventListener('click', () => chatbox.classList.contains('open') ? closeChat() : openChat());
@@ -488,16 +518,17 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   triageBtn?.addEventListener('click', startTriage);
   humanBtn?.addEventListener('click', requestHuman);
   endBtn.addEventListener('click', () => finalize('encerrado pelo visitante'));
-  whatsappBtn.addEventListener('click', openWhatsAppAndClose);
+  whatsappBtn.addEventListener('click', prepareWhatsAppLink);
 
-  document.querySelectorAll('a[href*="wa.me/"]').forEach(link => {
-    if (link !== whatsappBtn) link.addEventListener('click', event => {
-      if (!conversationStarted || sessionStatus === 'closed') return;
-      const url = link.href;
-      event.preventDefault();
-      window.open(url, link.target || '_blank', 'noopener');
-      finalize('encaminhado para atendimento pelo WhatsApp', { silent: true, keepalive: true });
-    });
+
+  window.addEventListener('focus', () => {
+    if (sessionStatus === 'closed' || busy) return;
+    const choiceQuestionActive = triageState?.current?.input_type === 'choice';
+    if (!choiceQuestionActive) {
+      input.disabled = false;
+      sendBtn.disabled = false;
+    }
+    endBtn.disabled = false;
   });
 
   initialize().catch(error => {

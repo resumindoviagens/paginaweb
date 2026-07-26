@@ -9,6 +9,6 @@ ANTES DE PUBLICAR:
 3. Execute supabase/setup.sql no projeto Supabase exclusivo do chatbot.
 4. Cadastre as variáveis do Supabase na Vercel.
 5. Envie o conteúdo deste ZIP para a raiz do repositório e aguarde o deployment.
-6. Confira /api/health e procure a versão painel-chat-v4.1-imagens-preservadas.
+6. Confira /api/health e procure a versão painel-chat-v4.2-logo-whatsapp-corrigido.
 
 Não coloque chaves secretas no GitHub.

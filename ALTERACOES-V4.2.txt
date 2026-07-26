@@ -1,0 +1,12 @@
+RESUMINDO VIAGENS — ALTERAÇÕES V4.2
+
+1. Novo logotipo oficial aplicado no cabeçalho.
+2. Novo favicon criado com o avião do logotipo enviado.
+3. Favicon também aplicado ao painel administrativo.
+4. Abrir o WhatsApp não encerra mais a sessão do chatbot.
+5. Ao retornar do WhatsApp, o visitante pode continuar digitando.
+6. A conversa só é encerrada pelo botão Encerrar.
+7. A triagem é armazenada no navegador e enviada no parâmetro de texto do WhatsApp.
+8. Link alterado para api.whatsapp.com/send, com melhor compatibilidade com WhatsApp Web.
+9. O texto da triagem também é copiado para a área de transferência como contingência.
+10. Sessões fechadas pela versão anterior não são reaproveitadas na versão nova.
