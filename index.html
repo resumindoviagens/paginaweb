@@ -65,7 +65,7 @@
 <section class="chatbox" id="chatbox" aria-hidden="true" aria-label="Assistente virtual da Resumindo Viagens">
   <header class="chatbox-header">
     <div class="chatbox-brand">
-      <img class="chatbox-logo" src="assets/favicon.png" alt="" aria-hidden="true">
+      <img class="chatbox-logo" src="assets/chat-icon.png" alt="Resumindo Viagens">
       <div>
         <strong>Assistente Resumindo</strong>
         <small id="chatMode">Iniciando atendimento...</small>
@@ -73,12 +73,7 @@
     </div>
     <button class="chatbox-close" id="chatClose" type="button" aria-label="Minimizar chat">×</button>
   </header>
-
-  <div class="chatbox-privacy">
-    <strong>Privacidade:</strong> este assistente não acessa cadastros, processos ou dados de clientes e não pode alterar informações no sistema. Não envie CPF, número de passaporte, data de nascimento, protocolo ou documentos. As mensagens ficam registradas no banco exclusivo do chatbot e, ao encerrar, o resumo é enviado para <strong>contato@resumindoviagens.com.br</strong>.
-  </div>
-
-  <div class="chatbox-profile">
+<div class="chatbox-profile">
     <label for="chatName">Como podemos chamar você? <span>(opcional)</span></label>
     <input id="chatName" maxlength="60" autocomplete="given-name" placeholder="Primeiro nome">
   </div>
@@ -93,6 +88,36 @@
     <button type="button" data-question="Como funciona o seguro viagem?">Seguro viagem</button>
     <button type="button" id="chatTriage">Iniciar triagem</button>
   </div>
+
+
+  <section class="triage-result hidden" id="chatTriageResult" aria-live="polite">
+    <div class="triage-result-head">
+      <div><strong>Triagem concluída</strong><span>Seu código de atendimento</span></div>
+      <code id="chatTriageCode">RV-00000000</code>
+    </div>
+    <p class="triage-result-text">O resumo foi salvo e enviado para a equipe. Escolha como prefere continuar.</p>
+    <div class="triage-continuation-actions">
+      <a id="chatTriageWhatsapp" class="triage-primary" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Conversar agora pelo WhatsApp</a>
+      <button id="chatCopyCode" class="triage-secondary" type="button">Copiar código</button>
+      <button id="chatCallbackToggle" class="triage-secondary" type="button">Quero receber contato</button>
+    </div>
+    <form id="chatCallbackForm" class="callback-form hidden">
+      <h3>Solicitar contato da equipe</h3>
+      <p>Informe somente os dados necessários para continuarmos este atendimento.</p>
+      <label for="callbackName">Primeiro nome</label>
+      <input id="callbackName" maxlength="60" autocomplete="given-name" required>
+      <label for="callbackPhone">WhatsApp com DDD</label>
+      <input id="callbackPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="(11) 99999-9999" required>
+      <label for="callbackPreference">Melhor período para contato</label>
+      <select id="callbackPreference" required>
+        <option value="">Selecione</option><option value="morning">Manhã</option><option value="afternoon">Tarde</option><option value="evening">Noite</option><option value="any">Qualquer horário</option>
+      </select>
+      <label class="callback-consent"><input id="callbackConsent" type="checkbox" required><span>Autorizo a Resumindo Viagens a entrar em contato comigo pelo WhatsApp para continuar esta solicitação.</span></label>
+      <p class="callback-privacy">O número será usado exclusivamente para este atendimento. Não envie documentos, CPF, número de passaporte ou outras informações sensíveis pelo chatbot.</p>
+      <div class="callback-actions"><button type="submit" id="callbackSubmit">Solicitar contato</button><button type="button" id="callbackCancel" class="triage-secondary">Cancelar</button></div>
+      <p id="callbackStatus" class="callback-status" role="status"></p>
+    </form>
+  </section>
 
   <form class="chat-form" id="chatForm">
     <label class="sr-only" for="chatInput">Digite sua pergunta</label>

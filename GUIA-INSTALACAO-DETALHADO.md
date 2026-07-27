@@ -1,4 +1,4 @@
-# Guia de instalação — Painel e Chatbox v4.2
+# Guia de instalação — Painel e Chatbox v4.4
 
 ## 1. O que foi preservado
 Este pacote usa o seu `paginaweb-main.zip` como base. A pasta `assets` foi copiada sem substituir, recomprimir ou renomear imagens. Consulte `RELATORIO-IMAGENS-PRESERVADAS.txt`.
@@ -46,7 +46,7 @@ Extraia este ZIP e envie o conteúdo interno para a raiz do repositório. As pas
 Na Vercel, abra **Deployments** e aguarde o novo deployment ficar **Ready**. Alterações de variáveis só funcionam em deployments novos.
 
 ## 11. Testes
-Abra `/api/health`. A versão esperada é `painel-chat-v4.2-logo-whatsapp-corrigido` e todos os campos de configuração devem estar `true`.
+Abra `/api/health`. A versão esperada é `painel-chat-v4.4-triagem-retorno` e todos os campos de configuração devem estar `true`.
 
 Abra `/admin` e entre com o usuário criado no Supabase. Em outra janela anônima, abra o site, fale no chatbot, faça a triagem e teste **Falar com atendente aqui**.
 

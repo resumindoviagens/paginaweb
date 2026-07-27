@@ -1,0 +1,12 @@
+RESUMINDO VIAGENS — ALTERAÇÕES V4.3
+
+1. Favicon substituído pelo mesmo ícone utilizado em app.resumindoviagens.com.br.
+2. Ícone do chatbox substituído pelo novo favicon da Resumindo Viagens.
+3. Bloco de privacidade removido da janela do chat para ampliar a área útil de leitura.
+4. Ajustes de espaçamento e leitura das mensagens do chat.
+5. Botão do WhatsApp reforçado:
+   - atualiza o link antes da abertura;
+   - grava o resumo pronto no próprio botão;
+   - tenta copiar a mensagem para a área de transferência;
+   - mantém a conversa ativa e o campo de digitação liberado ao retornar.
+6. Compatibilidade do envio do texto via wa.me mantida e revisada para WhatsApp Web.

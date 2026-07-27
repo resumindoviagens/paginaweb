@@ -1,4 +1,4 @@
-# Chatbox Resumindo Viagens — v4.2
+# Chatbox Resumindo Viagens — v4.4
 
 Pacote reconstruído sobre o website enviado pelo usuário, preservando integralmente as imagens já corrigidas.
 

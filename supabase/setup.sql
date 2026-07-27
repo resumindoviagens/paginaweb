@@ -1,5 +1,5 @@
 -- =============================================================
--- RESUMINDO VIAGENS — CHATBOX DINÂMICO, TRIAGEM E ATENDIMENTO AO VIVO
+-- RESUMINDO VIAGENS — CHATBOX DINÂMICO, TRIAGEM, RETORNO E ATENDIMENTO AO VIVO
 -- Execute este arquivo uma única vez no SQL Editor do projeto Supabase
 -- exclusivo do chatbot. O script é idempotente e pode ser executado novamente.
 -- IMPORTANTE: crie antes o usuário administrador em Authentication > Users
@@ -110,8 +110,36 @@ create table if not exists public.triage_submissions (
   answers jsonb not null,
   summary_text text not null,
   reference_code text unique not null,
+  visitor_name text,
+  contact_phone text,
+  contact_preference text,
+  contact_consent boolean not null default false,
+  continuation_mode text not null default 'undecided',
+  contact_status text not null default 'new',
+  email_sent_at timestamptz,
+  email_message_id text,
+  callback_email_sent_at timestamptz,
+  callback_email_message_id text,
+  contacted_at timestamptz,
+  contacted_by uuid references auth.users(id),
+  updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+alter table public.triage_submissions add column if not exists visitor_name text;
+alter table public.triage_submissions add column if not exists contact_phone text;
+alter table public.triage_submissions add column if not exists contact_preference text;
+alter table public.triage_submissions add column if not exists contact_consent boolean not null default false;
+alter table public.triage_submissions add column if not exists continuation_mode text not null default 'undecided';
+alter table public.triage_submissions add column if not exists contact_status text not null default 'new';
+alter table public.triage_submissions add column if not exists email_sent_at timestamptz;
+alter table public.triage_submissions add column if not exists email_message_id text;
+alter table public.triage_submissions add column if not exists callback_email_sent_at timestamptz;
+alter table public.triage_submissions add column if not exists callback_email_message_id text;
+alter table public.triage_submissions add column if not exists contacted_at timestamptz;
+alter table public.triage_submissions add column if not exists contacted_by uuid references auth.users(id);
+alter table public.triage_submissions add column if not exists updated_at timestamptz not null default now();
+create index if not exists triage_submissions_code_idx on public.triage_submissions(reference_code);
+create index if not exists triage_submissions_status_idx on public.triage_submissions(contact_status,created_at desc);
 
 alter table public.chat_sessions
   drop constraint if exists chat_sessions_triage_id_fkey;
@@ -231,11 +259,13 @@ create policy messages_admin_insert on public.chat_messages for insert to authen
 create policy triage_questions_read on public.triage_questions for select to authenticated using (active=true or public.is_chat_admin());
 create policy triage_questions_admin on public.triage_questions for all to authenticated using (public.is_chat_admin()) with check (public.is_chat_admin());
 create policy triage_submissions_own on public.triage_submissions for select to authenticated using (visitor_id=auth.uid() or public.is_chat_admin());
+create policy triage_submissions_admin_update on public.triage_submissions for update to authenticated using (public.is_chat_admin()) with check (public.is_chat_admin());
 create policy review_admin_all on public.review_queue for all to authenticated using (public.is_chat_admin()) with check (public.is_chat_admin());
 
 -- Grants
 grant usage on schema public to authenticated;
 grant select on public.admin_profiles,public.chat_settings,public.knowledge_items,public.knowledge_versions,public.chat_sessions,public.chat_messages,public.triage_questions,public.triage_submissions to authenticated;
+grant update on public.triage_submissions to authenticated;
 grant insert,update,delete on public.chat_settings,public.knowledge_items,public.triage_questions,public.review_queue to authenticated;
 grant select,insert,update,delete on public.review_queue to authenticated;
 grant update on public.chat_sessions to authenticated;

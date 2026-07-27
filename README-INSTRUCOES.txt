@@ -21,6 +21,6 @@ INSTALAÇÃO:
 5. Cadastre as variáveis do Supabase na Vercel.
 6. Envie o conteúdo interno deste ZIP para a raiz do GitHub.
 7. Aguarde o deployment ficar Ready.
-8. Confira /api/health: a versão deve ser painel-chat-v4.2-logo-whatsapp-corrigido.
+8. Confira /api/health: a versão deve ser painel-chat-v4.4-triagem-retorno.
 
 Não substitua a pasta assets por arquivos de versões anteriores.

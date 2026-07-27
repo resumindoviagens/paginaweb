@@ -71,3 +71,25 @@
   .header-logo{height:58px;max-width:190px}
   .nav{height:70px}
 }
+
+
+/* v4.3 ajustes de favicon, chat e WhatsApp */
+.chatbox-logo{width:44px!important;height:44px!important;border-radius:12px!important;background:transparent!important}
+.chat-user-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e6ebf5}
+.chat-messages{max-height:340px}
+.chat-message{max-width:88%}
+.chat-message-bot,.chat-message-human,.chat-message-user{padding:14px 16px;line-height:1.5}
+.chat-status{min-height:22px;font-size:14px;line-height:1.35}
+.chat-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chat-actions .btn{width:100%}
+.chat-window .chat-head{padding:18px 16px}
+.chat-body{padding-top:10px}
+@media (max-width:600px){
+  .chat-window{width:min(560px,100vw - 8px);right:4px;bottom:4px;max-height:calc(100vh - 8px)}
+  .chat-messages{max-height:300px}
+  .chat-message{max-width:92%}
+}
+
+/* V4.4 — TRIAGEM, CÓDIGO E SOLICITAÇÃO DE RETORNO */
+.triage-result{margin:10px 14px 6px;padding:14px;border:1px solid #cfdbee;border-radius:16px;background:#f8fbff;box-shadow:0 8px 24px rgba(4,23,61,.08);max-height:330px;overflow:auto}
+.triage-result-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.triage-result-head strong{display:block;color:#06183b;font-size:16px}.triage-result-head span{display:block;color:#62738d;font-size:12px;margin-top:2px}.triage-result-head code{padding:8px 10px;border-radius:9px;background:#06183b;color:#fff;font-size:14px;font-weight:800;letter-spacing:.5px;white-space:nowrap}.triage-result-text{margin:10px 0;color:#445874;font-size:13px;line-height:1.45}.triage-continuation-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.triage-continuation-actions .triage-primary{grid-column:1/-1}.triage-primary,.triage-secondary{min-height:42px;border:0;border-radius:11px;padding:10px 12px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:800;text-decoration:none;cursor:pointer}.triage-primary{background:#25d366;color:#fff}.triage-secondary{background:#eaf0f8;color:#17365e}.callback-form{margin-top:12px;padding-top:12px;border-top:1px solid #d9e2ef}.callback-form h3{margin:0 0 4px;color:#06183b;font-size:15px}.callback-form>p{margin:0 0 10px;color:#65758c;font-size:12px}.callback-form label:not(.callback-consent){display:block;margin:9px 0 5px;color:#2b4262;font-size:12px;font-weight:800}.callback-form input,.callback-form select{width:100%;border:1px solid #cbd7e7;border-radius:10px;padding:10px 11px;background:#fff;color:#172b49;font-size:14px}.callback-consent{display:flex!important;align-items:flex-start!important;gap:9px!important;margin:12px 0 7px!important;color:#354b6b!important;font-size:12px!important;line-height:1.4}.callback-consent input{width:auto!important;margin-top:2px;flex:0 0 auto}.callback-privacy{padding:9px 10px!important;border-radius:9px;background:#fff8e7;color:#685022!important;font-size:11px!important;line-height:1.4}.callback-actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.callback-actions button{min-height:40px}.callback-status{min-height:18px;margin:8px 0 0!important;font-size:12px!important}.callback-status.error{color:#b42318!important}.callback-status.success{color:#147b43!important}@media(max-width:520px){.triage-result{margin-left:8px;margin-right:8px}.triage-result-head{align-items:flex-start}.triage-continuation-actions{grid-template-columns:1fr}.triage-continuation-actions .triage-primary{grid-column:auto}.callback-actions{grid-template-columns:1fr}}

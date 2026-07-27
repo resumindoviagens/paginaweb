@@ -1,14 +1,14 @@
 const filters=document.querySelectorAll('.filter');const cards=document.querySelectorAll('.card');filters.forEach(btn=>btn.addEventListener('click',()=>{filters.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;cards.forEach(c=>c.style.display=f==='Todos'||c.dataset.category===f?'':'none')}));const modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),modalShort=document.getElementById('modalShort'),modalImg=document.getElementById('modalImg'),modalBullets=document.getElementById('modalBullets'),modalClosing=document.getElementById('modalClosing'),modalWhats=document.getElementById('modalWhats');document.querySelectorAll('.more-btn').forEach(btn=>btn.addEventListener('click',()=>{const title=btn.dataset.title;modalTitle.textContent=title;modalShort.textContent=btn.dataset.short;modalImg.src=btn.dataset.img;modalImg.alt=title;modalBullets.innerHTML=JSON.parse(btn.dataset.bullets).map(i=>`<li>${i}</li>`).join('');modalClosing.textContent=btn.dataset.closing;modalWhats.href=`https://wa.me/5511981210932?text=${encodeURIComponent('Olá, gostaria de mais informações sobre: '+title)}`;modal.classList.add('open');modal.setAttribute('aria-hidden','false')}));function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',closeModal);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* =========================================================
-   CHATBOX V4.1 — SUPABASE, TRIAGEM E ATENDIMENTO HUMANO
+   CHATBOX V4.4 — SUPABASE, TRIAGEM E ATENDIMENTO HUMANO
    ========================================================= */
 (() => {
   const $ = selector => document.querySelector(selector);
   const WHATSAPP_DEFAULT = '5511981210932';
-  const STORAGE_KEY = 'resumindo_live_chat_v42';
-  const TRIAGE_WHATSAPP_KEY = 'resumindo_triage_whatsapp_v42';
-  const VERSION = 'painel-chat-v4.2-logo-whatsapp-corrigido';
+  const STORAGE_KEY = 'resumindo_live_chat_v44';
+  const TRIAGE_WHATSAPP_KEY = 'resumindo_triage_whatsapp_v44';
+  const VERSION = 'painel-chat-v4.4-triagem-retorno';
 
   const launcher = $('#chatLauncher');
   const chatbox = $('#chatbox');
@@ -25,6 +25,19 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   const nameInput = $('#chatName');
   const statusEl = $('#chatStatus');
   const modeEl = $('#chatMode');
+  const triageResultEl = $('#chatTriageResult');
+  const triageCodeEl = $('#chatTriageCode');
+  const triageWhatsappEl = $('#chatTriageWhatsapp');
+  const copyCodeBtn = $('#chatCopyCode');
+  const callbackToggle = $('#chatCallbackToggle');
+  const callbackForm = $('#chatCallbackForm');
+  const callbackName = $('#callbackName');
+  const callbackPhone = $('#callbackPhone');
+  const callbackPreference = $('#callbackPreference');
+  const callbackConsent = $('#callbackConsent');
+  const callbackCancel = $('#callbackCancel');
+  const callbackStatus = $('#callbackStatus');
+  const callbackSubmit = $('#callbackSubmit');
 
   if (!launcher || !chatbox || !form || !input || !messagesEl) return;
 
@@ -39,6 +52,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   let finalizing = false;
   let conversationStarted = false;
   let whatsappPrefillText = sessionStorage.getItem(TRIAGE_WHATSAPP_KEY) || '';
+  let completedTriage = null;
   const seenMessages = new Set();
 
   const escapeText = value => String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -72,10 +86,8 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 
   function whatsappUrl(text = '') {
     const number = String(settings.whatsapp_number || WHATSAPP_DEFAULT).replace(/\D/g, '') || WHATSAPP_DEFAULT;
-    const url = new URL('https://api.whatsapp.com/send/');
-    url.searchParams.set('phone', number);
-    if (text) url.searchParams.set('text', text);
-    return url.toString();
+    const encoded = text ? encodeURIComponent(text) : '';
+    return `https://wa.me/${number}${encoded ? `?text=${encoded}` : ''}`;
   }
 
   function defaultWhatsAppMessage() {
@@ -83,10 +95,42 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     return `Olá! Vim pelo Chatbox Resumindo Viagens.${firstName ? ` Meu nome é ${firstName}.` : ''}\n\nGostaria de continuar meu atendimento.`;
   }
 
+  function triageWhatsAppMessage(code) {
+    return `Olá! Concluí minha triagem no site da Resumindo Viagens.\n\nCódigo da triagem: ${code}\n\nGostaria de continuar o atendimento.`;
+  }
+
   function updateWhatsAppLink() {
-    const message = whatsappPrefillText || defaultWhatsAppMessage();
-    whatsappBtn.href = whatsappUrl(message);
-    whatsappBtn.classList.toggle('has-triage', Boolean(whatsappPrefillText));
+    const message = (whatsappPrefillText || '').trim() || defaultWhatsAppMessage();
+    const url = whatsappUrl(message);
+    whatsappBtn.href = url;
+    whatsappBtn.dataset.message = message;
+    whatsappBtn.dataset.hrefReady = url;
+    whatsappBtn.classList.toggle('has-triage', Boolean((whatsappPrefillText || '').trim()));
+    if (triageWhatsappEl) {
+      triageWhatsappEl.href = url;
+      triageWhatsappEl.dataset.message = message;
+    }
+  }
+
+  function showTriageResult(code, summary) {
+    completedTriage = { code, summary };
+    triageCodeEl.textContent = code;
+    callbackName.value = nameInput.value.trim();
+    callbackForm.classList.add('hidden');
+    callbackStatus.textContent = '';
+    triageResultEl.classList.remove('hidden');
+    updateWhatsAppLink();
+    scrollToBottom();
+  }
+
+  async function notifyTriage(mode, extra = {}) {
+    const token = await accessToken();
+    return fetchJson('/api/triage-contact', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ sessionId, mode, ...extra })
+    });
   }
 
   function linkifySafeText(text) {
@@ -414,13 +458,20 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     sendBtn.disabled = false;
     input.placeholder = 'Digite sua dúvida...';
 
-    const message = `Olá! Vim pelo Chatbox Resumindo Viagens e concluí a triagem.\n\n${summary}\n\nCódigo da triagem: ${code}\n\nGostaria de receber os próximos passos e valores.`;
+    const message = triageWhatsAppMessage(code);
     whatsappPrefillText = message;
     sessionStorage.setItem(TRIAGE_WHATSAPP_KEY, message);
-    updateWhatsAppLink();
-    whatsappBtn.textContent = 'Continuar no WhatsApp';
-    localMessage(`Pronto! Sua triagem foi organizada com o código ${code}. Ao abrir o WhatsApp, as respostas já estarão preenchidas; basta conferir e enviar.`, 'system');
-    setStatus('Triagem concluída.', 'success');
+    whatsappBtn.textContent = 'WhatsApp';
+    showTriageResult(code, summary);
+
+    localMessage(`Pronto! Sua triagem foi salva com o código ${code}. O resumo completo foi encaminhado para a equipe.`, 'system');
+    setStatus('Enviando o resumo para a equipe...');
+    try {
+      const notification = await notifyTriage('summary');
+      setStatus(notification.emailSent === false ? 'Triagem salva. A equipe poderá consultá-la no painel.' : 'Triagem concluída e resumo enviado para a equipe.', 'success');
+    } catch {
+      setStatus('Triagem salva. O alerta por e-mail não pôde ser enviado, mas a equipe poderá consultá-la no painel.', 'error');
+    }
   }
 
   function restoreQuickButtons() {
@@ -477,36 +528,24 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   }
 
   function prepareWhatsAppLink(event) {
-    const message = whatsappPrefillText || defaultWhatsAppMessage();
-    event.currentTarget.href = whatsappUrl(message);
+    const message = (whatsappPrefillText || '').trim() || defaultWhatsAppMessage();
+    const url = whatsappUrl(message);
+    event.currentTarget.href = url;
+    event.currentTarget.dataset.hrefReady = url;
     event.currentTarget.target = '_blank';
     event.currentTarget.rel = 'noopener noreferrer';
-
-    if (navigator.clipboard && whatsappPrefillText) {
-      navigator.clipboard.writeText(whatsappPrefillText).catch(() => {});
-    }
-
-    setStatus(
-      whatsappPrefillText
-        ? 'O WhatsApp foi aberto com a triagem preenchida. Esta conversa continua ativa aqui.'
-        : 'O WhatsApp foi aberto. Esta conversa continua ativa aqui.',
-      'success'
-    );
+    if (navigator.clipboard && message) navigator.clipboard.writeText(message).catch(() => {});
+    if (completedTriage) notifyTriage('whatsapp').catch(() => {});
+    setTimeout(() => { input.disabled = false; sendBtn.disabled = false; endBtn.disabled = false; }, 80);
+    setStatus(completedTriage ? `O WhatsApp foi aberto com o código ${completedTriage.code}. Se o texto não aparecer, cole a mensagem copiada automaticamente.` : 'O WhatsApp foi aberto. Esta conversa continua ativa aqui.', 'success');
   }
 
   launcher.addEventListener('click', () => chatbox.classList.contains('open') ? closeChat() : openChat());
   closeBtn.addEventListener('click', closeChat);
   form.addEventListener('submit', event => { event.preventDefault(); ask(input.value); });
-  input.addEventListener('keydown', event => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      form.requestSubmit();
-    }
-  });
-  input.addEventListener('input', () => {
-    input.style.height = 'auto';
-    input.style.height = `${Math.min(input.scrollHeight, 100)}px`;
-  });
+  input.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); form.requestSubmit(); } });
+  input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = `${Math.min(input.scrollHeight, 100)}px`; });
+
   quickEl.addEventListener('click', event => {
     const button = event.target.closest('[data-question]');
     if (button) ask(button.dataset.question);
@@ -518,8 +557,41 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   triageBtn?.addEventListener('click', startTriage);
   humanBtn?.addEventListener('click', requestHuman);
   endBtn.addEventListener('click', () => finalize('encerrado pelo visitante'));
-  whatsappBtn.addEventListener('click', prepareWhatsAppLink);
+  whatsappBtn.addEventListener('mousedown', prepareWhatsAppLink);
+  whatsappBtn.addEventListener('touchstart', prepareWhatsAppLink, { passive: true });
+  whatsappBtn.addEventListener('click', event => {
+    prepareWhatsAppLink(event);
+    const ready = whatsappBtn.dataset.hrefReady || whatsappUrl(((whatsappPrefillText || '').trim()) || defaultWhatsAppMessage());
+    whatsappBtn.href = ready;
+  });
 
+
+  copyCodeBtn?.addEventListener('click', async () => {
+    if (!completedTriage?.code) return;
+    try { await navigator.clipboard.writeText(completedTriage.code); copyCodeBtn.textContent = 'Código copiado'; setTimeout(() => { copyCodeBtn.textContent = 'Copiar código'; }, 1800); }
+    catch { setStatus(`Código: ${completedTriage.code}`, 'success'); }
+  });
+  callbackToggle?.addEventListener('click', () => { callbackForm.classList.toggle('hidden'); if (!callbackForm.classList.contains('hidden')) { callbackName.value = callbackName.value || nameInput.value.trim(); callbackName.focus(); } });
+  callbackCancel?.addEventListener('click', () => { callbackForm.classList.add('hidden'); callbackStatus.textContent = ''; });
+  callbackPhone?.addEventListener('input', () => { const digits = callbackPhone.value.replace(/\D/g, '').slice(0, 11); if (digits.length <= 2) callbackPhone.value = digits; else if (digits.length <= 7) callbackPhone.value = `(${digits.slice(0,2)}) ${digits.slice(2)}`; else callbackPhone.value = `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7,11)}`; });
+  callbackForm?.addEventListener('submit', async event => {
+    event.preventDefault(); callbackStatus.textContent = ''; callbackStatus.className = 'callback-status';
+    const name = callbackName.value.trim(); const phone = callbackPhone.value.trim(); const preference = callbackPreference.value; const consent = callbackConsent.checked;
+    if (!completedTriage?.code) { callbackStatus.textContent = 'Conclua a triagem antes de solicitar contato.'; callbackStatus.classList.add('error'); return; }
+    if (name.length < 2) { callbackStatus.textContent = 'Informe seu primeiro nome.'; callbackStatus.classList.add('error'); return; }
+    if (phone.replace(/\D/g, '').length < 10) { callbackStatus.textContent = 'Informe um telefone com DDD.'; callbackStatus.classList.add('error'); return; }
+    if (!preference || !consent) { callbackStatus.textContent = 'Escolha o período e confirme a autorização de contato.'; callbackStatus.classList.add('error'); return; }
+    callbackSubmit.disabled = true; callbackStatus.textContent = 'Registrando sua solicitação...';
+    try {
+      const result = await notifyTriage('callback', { name, phone, preference, consent }); nameInput.value = name;
+      callbackStatus.textContent = result.emailSent === false ? `Solicitação registrada com o código ${completedTriage.code}. A equipe poderá consultá-la no painel.` : `Solicitação enviada. A equipe entrará em contato pelo WhatsApp. Código: ${completedTriage.code}.`;
+      callbackStatus.classList.add('success'); callbackForm.querySelectorAll('input,select,button').forEach(element => { element.disabled = true; });
+      localMessage(`Sua solicitação de retorno foi registrada. Código: ${completedTriage.code}.`, 'system'); setStatus('Aguarde o contato da equipe pelo WhatsApp.', 'success');
+    } catch (error) { callbackStatus.textContent = error.message || 'Não foi possível registrar a solicitação.'; callbackStatus.classList.add('error'); callbackSubmit.disabled = false; }
+  });
+  triageWhatsappEl?.addEventListener('mousedown', prepareWhatsAppLink);
+  triageWhatsappEl?.addEventListener('touchstart', prepareWhatsAppLink, { passive: true });
+  triageWhatsappEl?.addEventListener('click', prepareWhatsAppLink);
 
   window.addEventListener('focus', () => {
     if (sessionStatus === 'closed' || busy) return;
