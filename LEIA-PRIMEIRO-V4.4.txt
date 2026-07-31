@@ -1,3 +1,6 @@
+ARQUIVO HISTÓRICO — INSTRUÇÕES DA V4.4
+Consulte LEIA-ME-PRIMEIRO.txt e LEIA-PRIMEIRO-V4.5.txt para a versão atual.
+
 ATUALIZAÇÃO V4.4 — ORDEM OBRIGATÓRIA
 
 1. Execute supabase/ATUALIZACAO-V4.4.sql no Supabase do chatbot.

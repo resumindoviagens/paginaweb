@@ -1,14 +1,14 @@
 const filters=document.querySelectorAll('.filter');const cards=document.querySelectorAll('.card');filters.forEach(btn=>btn.addEventListener('click',()=>{filters.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;cards.forEach(c=>c.style.display=f==='Todos'||c.dataset.category===f?'':'none')}));const modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),modalShort=document.getElementById('modalShort'),modalImg=document.getElementById('modalImg'),modalBullets=document.getElementById('modalBullets'),modalClosing=document.getElementById('modalClosing'),modalWhats=document.getElementById('modalWhats');document.querySelectorAll('.more-btn').forEach(btn=>btn.addEventListener('click',()=>{const title=btn.dataset.title;modalTitle.textContent=title;modalShort.textContent=btn.dataset.short;modalImg.src=btn.dataset.img;modalImg.alt=title;modalBullets.innerHTML=JSON.parse(btn.dataset.bullets).map(i=>`<li>${i}</li>`).join('');modalClosing.textContent=btn.dataset.closing;modalWhats.href=`https://wa.me/5511981210932?text=${encodeURIComponent('Olá, gostaria de mais informações sobre: '+title)}`;modal.classList.add('open');modal.setAttribute('aria-hidden','false')}));function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',closeModal);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* =========================================================
-   CHATBOX V4.4 — SUPABASE, TRIAGEM E ATENDIMENTO HUMANO
+   CHATBOX V4.5 — SUPABASE, TRIAGEM E ATENDIMENTO HUMANO
    ========================================================= */
 (() => {
   const $ = selector => document.querySelector(selector);
   const WHATSAPP_DEFAULT = '5511981210932';
-  const STORAGE_KEY = 'resumindo_live_chat_v44';
-  const TRIAGE_WHATSAPP_KEY = 'resumindo_triage_whatsapp_v44';
-  const VERSION = 'painel-chat-v4.4-triagem-retorno';
+  const STORAGE_KEY = 'resumindo_live_chat_v45';
+  const TRIAGE_WHATSAPP_KEY = 'resumindo_triage_whatsapp_v45';
+  const VERSION = 'painel-chat-v4.5-recuperacao-sessao';
 
   const launcher = $('#chatLauncher');
   const chatbox = $('#chatbox');
@@ -29,6 +29,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   const triageCodeEl = $('#chatTriageCode');
   const triageWhatsappEl = $('#chatTriageWhatsapp');
   const copyCodeBtn = $('#chatCopyCode');
+  const triageDismissBtn = $('#chatTriageDismiss');
   const callbackToggle = $('#chatCallbackToggle');
   const callbackForm = $('#chatCallbackForm');
   const callbackName = $('#callbackName');
@@ -38,6 +39,10 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   const callbackCancel = $('#callbackCancel');
   const callbackStatus = $('#callbackStatus');
   const callbackSubmit = $('#callbackSubmit');
+  const startupErrorEl = $('#chatStartupError');
+  const startupErrorText = $('#chatStartupErrorText');
+  const retryBtn = $('#chatRetry');
+  const startupWhatsApp = $('#chatStartupWhatsApp');
 
   if (!launcher || !chatbox || !form || !input || !messagesEl) return;
 
@@ -53,6 +58,8 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   let conversationStarted = false;
   let whatsappPrefillText = sessionStorage.getItem(TRIAGE_WHATSAPP_KEY) || '';
   let completedTriage = null;
+  let initialized = false;
+  let initializationPromise = null;
   const seenMessages = new Set();
 
   const escapeText = value => String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -78,6 +85,40 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   function setStatus(text = '', type = '') {
     statusEl.textContent = text;
     statusEl.className = `chatbox-status ${type}`.trim();
+  }
+
+  function setInterfaceReady(value) {
+    initialized = value;
+    const closed = sessionStatus === 'closed';
+    input.disabled = !value || closed;
+    sendBtn.disabled = !value || closed;
+    endBtn.disabled = false;
+    quickEl.querySelectorAll('button').forEach(button => { button.disabled = !value || closed; });
+    triageBtn && (triageBtn.disabled = !value || closed);
+    humanBtn && (humanBtn.disabled = !value || closed);
+  }
+
+  function hideStartupError() {
+    startupErrorEl?.classList.add('hidden');
+    if (startupErrorText) startupErrorText.textContent = '';
+  }
+
+  function showStartupError(error) {
+    console.error('[Chatbox Resumindo Viagens] Falha de inicialização:', error);
+    setInterfaceReady(false);
+    modeEl.textContent = 'Atendimento indisponível';
+    const raw = String(error?.message || error || 'Falha desconhecida');
+    const anonymousDisabled = error?.code === 'anonymous_provider_disabled' || /anonymous sign-ins are disabled|anonymous_provider_disabled/i.test(raw);
+    const configurationMissing = error?.code === 'chat_not_configured' || /ainda não foi configurado/i.test(raw);
+    const message = anonymousDisabled
+      ? 'A sessão segura do chat está temporariamente desativada. Tente novamente em instantes ou continue pelo WhatsApp.'
+      : configurationMissing
+        ? 'O atendimento online ainda não foi configurado. Continue pelo WhatsApp enquanto a equipe conclui a configuração.'
+        : 'Não foi possível iniciar o atendimento agora. Tente novamente ou continue pelo WhatsApp.';
+    if (startupErrorText) startupErrorText.textContent = message;
+    startupErrorEl?.classList.remove('hidden');
+    setStatus(message, 'error');
+    updateWhatsAppLink();
   }
 
   function scrollToBottom() {
@@ -176,6 +217,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     chatbox.classList.add('open');
     chatbox.setAttribute('aria-hidden', 'false');
     launcher.setAttribute('aria-expanded', 'true');
+    if (!initialized) ensureInitialized();
     if (!input.disabled) input.focus();
     scrollToBottom();
   }
@@ -194,11 +236,16 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   }
 
   async function initialize() {
+    hideStartupError();
+    setInterfaceReady(false);
+    modeEl.textContent = 'Iniciando atendimento...';
+    setStatus('Preparando atendimento seguro...');
+
     const config = await fetchJson('/api/config');
     if (!config.configured) {
-      setStatus('O atendimento dinâmico ainda não foi configurado.', 'error');
-      modeEl.textContent = 'Configuração pendente';
-      return;
+      const error = new Error('O atendimento dinâmico ainda não foi configurado.');
+      error.code = 'chat_not_configured';
+      throw error;
     }
     if (!window.supabase?.createClient) throw new Error('A biblioteca do atendimento não foi carregada. Atualize a página.');
 
@@ -213,13 +260,27 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     if (!session?.user?.id) throw new Error('Não foi possível criar a sessão segura do visitante.');
 
     const stored = safeStoredState();
-    const canReuseStoredSession = stored?.version === VERSION &&
+    let canReuseStoredSession = Boolean(
+      stored?.version === VERSION &&
       stored?.userId === session.user.id &&
-      stored?.sessionId;
+      stored?.sessionId
+    );
+
+    if (canReuseStoredSession) {
+      const { data: previousSession, error: previousSessionError } = await db
+        .from('chat_sessions')
+        .select('id,status')
+        .eq('id', stored.sessionId)
+        .maybeSingle();
+      if (previousSessionError) throw previousSessionError;
+      canReuseStoredSession = Boolean(previousSession && previousSession.status !== 'closed');
+    }
+
     if (!canReuseStoredSession) {
       sessionStorage.removeItem(TRIAGE_WHATSAPP_KEY);
       whatsappPrefillText = '';
     }
+
     sessionId = canReuseStoredSession ? stored.sessionId : crypto.randomUUID();
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ sessionId, userId: session.user.id, version: VERSION }));
 
@@ -232,6 +293,21 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 
     await Promise.all([loadSettings(), loadTriageQuestions(), loadMessages(), loadSession()]);
     subscribeToUpdates();
+    setInterfaceReady(sessionStatus !== 'closed');
+    setStatus('');
+  }
+
+  function ensureInitialized() {
+    if (initialized) return Promise.resolve(true);
+    if (initializationPromise) return initializationPromise;
+    initializationPromise = initialize()
+      .then(() => true)
+      .catch(error => {
+        showStartupError(error);
+        return false;
+      })
+      .finally(() => { initializationPromise = null; });
+    return initializationPromise;
   }
 
   async function loadSettings() {
@@ -282,9 +358,9 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     };
     modeEl.textContent = labels[sessionStatus] || '';
     const closed = sessionStatus === 'closed';
-    input.disabled = closed;
-    sendBtn.disabled = closed;
-    endBtn.disabled = closed;
+    input.disabled = !initialized || closed;
+    sendBtn.disabled = !initialized || closed;
+    endBtn.disabled = false;
     updateHumanButton();
   }
 
@@ -308,6 +384,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   async function ask(text) {
     const question = String(text || '').trim().slice(0, 1200);
     if (!question || busy || sessionStatus === 'closed') return;
+    if (!initialized || !db || !sessionId) { showStartupError(new Error('Atendimento ainda não inicializado.')); return; }
     if (triageState) return acceptTriageText(question);
 
     conversationStarted = true;
@@ -343,6 +420,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 
   function startTriage() {
     if (busy || sessionStatus === 'closed') return;
+    if (!initialized || !db || !sessionId) { showStartupError(new Error('Atendimento ainda não inicializado.')); return; }
     triageState = { answers: {}, labels: {}, current: null };
     conversationStarted = true;
     localMessage('Vamos fazer uma triagem rápida. As respostas poderão seguir preenchidas para o WhatsApp, evitando repetição.', 'system');
@@ -432,6 +510,11 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   }
 
   async function finishTriage() {
+    if (!initialized || !db || !sessionId || !triageState) {
+      showStartupError(new Error('Atendimento ainda não inicializado.'));
+      return;
+    }
+
     const applicable = eligibleTriageQuestions();
     const lines = applicable
       .filter(question => question.include_in_whatsapp && triageState.labels[question.question_key])
@@ -440,50 +523,61 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     const summary = lines.join('\n');
     const stateToSubmit = triageState;
 
+    setBusy(true);
     setStatus('Salvando a triagem...');
-    const { error } = await db.rpc('submit_chat_triage', {
-      p_session_id: sessionId,
-      p_answers: stateToSubmit.answers,
-      p_summary: summary,
-      p_reference_code: code
-    });
-    if (error) {
-      setStatus(`Não foi possível salvar a triagem: ${error.message}`, 'error');
-      return;
-    }
-
-    triageState = null;
-    restoreQuickButtons();
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.placeholder = 'Digite sua dúvida...';
-
-    const message = triageWhatsAppMessage(code);
-    whatsappPrefillText = message;
-    sessionStorage.setItem(TRIAGE_WHATSAPP_KEY, message);
-    whatsappBtn.textContent = 'WhatsApp';
-    showTriageResult(code, summary);
-
-    localMessage(`Pronto! Sua triagem foi salva com o código ${code}. O resumo completo foi encaminhado para a equipe.`, 'system');
-    setStatus('Enviando o resumo para a equipe...');
     try {
-      const notification = await notifyTriage('summary');
-      setStatus(notification.emailSent === false ? 'Triagem salva. A equipe poderá consultá-la no painel.' : 'Triagem concluída e resumo enviado para a equipe.', 'success');
-    } catch {
-      setStatus('Triagem salva. O alerta por e-mail não pôde ser enviado, mas a equipe poderá consultá-la no painel.', 'error');
+      const { error } = await db.rpc('submit_chat_triage', {
+        p_session_id: sessionId,
+        p_answers: stateToSubmit.answers,
+        p_summary: summary,
+        p_reference_code: code
+      });
+      if (error) throw error;
+
+      triageState = null;
+      restoreQuickButtons();
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.placeholder = 'Digite sua dúvida...';
+
+      const message = triageWhatsAppMessage(code);
+      whatsappPrefillText = message;
+      sessionStorage.setItem(TRIAGE_WHATSAPP_KEY, message);
+      whatsappBtn.textContent = 'WhatsApp';
+      showTriageResult(code, summary);
+
+      localMessage(`Pronto! Sua triagem foi salva com o código ${code}. O resumo completo foi encaminhado para a equipe.`, 'system');
+      setStatus('Enviando o resumo para a equipe...');
+      try {
+        const notification = await notifyTriage('summary');
+        setStatus(notification.emailSent === false ? 'Triagem salva. A equipe poderá consultá-la no painel.' : 'Triagem concluída e resumo enviado para a equipe.', 'success');
+      } catch {
+        setStatus('Triagem salva. O alerta por e-mail não pôde ser enviado, mas a equipe poderá consultá-la no painel.', 'error');
+      }
+    } catch (error) {
+      setStatus(`Não foi possível salvar a triagem: ${error.message}`, 'error');
+    } finally {
+      setBusy(false);
+      if (triageState?.current?.input_type === 'choice') {
+        input.disabled = true;
+        sendBtn.disabled = true;
+      }
     }
   }
 
   function restoreQuickButtons() {
     quickEl.innerHTML = `
       <button type="button" data-question="Como funciona a assessoria para o primeiro visto americano?">Primeiro visto</button>
-      <button type="button" data-question="Como funciona a renovação do visto americano?">Renovação</button>
+      <button type="button" data-question="Qual a diferença entre primeiro visto e renovação?">Primeiro visto x renovação</button>
       <button type="button" data-question="O que é o DS-160?">O que é DS-160?</button>
+      <button type="button" data-question="Quais serviços a Resumindo oferece?">Todos os serviços</button>
+      <button type="button" data-question="Como funciona o seguro viagem?">Seguro viagem</button>
       <button type="button" id="chatTriageInline">Iniciar triagem</button>`;
     $('#chatTriageInline')?.addEventListener('click', startTriage);
   }
 
   async function requestHuman() {
+    if (!initialized || !db || !sessionId) { showStartupError(new Error('Atendimento ainda não inicializado.')); return; }
     if (settings.human_available !== true) {
       setStatus('Não há atendente disponível no chat neste momento. Você pode continuar com a IA ou pelo WhatsApp.', 'error');
       return;
@@ -527,6 +621,52 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     }
   }
 
+  async function resetLocalConversation({ signOut = false } = {}) {
+    if (channel && db) {
+      try { await db.removeChannel(channel); } catch {}
+    }
+    channel = null;
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(TRIAGE_WHATSAPP_KEY);
+    whatsappPrefillText = '';
+    completedTriage = null;
+    triageState = null;
+    sessionId = null;
+    sessionStatus = 'bot';
+    conversationStarted = false;
+    seenMessages.clear();
+    messagesEl.innerHTML = '';
+    triageResultEl?.classList.add('hidden');
+    callbackForm?.classList.add('hidden');
+    callbackStatus.textContent = '';
+    restoreQuickButtons();
+    input.value = '';
+    input.placeholder = 'Digite sua dúvida...';
+    modeEl.textContent = 'Iniciando atendimento...';
+    setStatus('');
+    hideStartupError();
+    setInterfaceReady(false);
+    updateWhatsAppLink();
+    if (signOut && db) {
+      try { await db.auth.signOut({ scope: 'local' }); } catch {}
+    }
+    db = null;
+  }
+
+  async function endAndClose() {
+    endBtn.disabled = true;
+    try {
+      if (initializationPromise) await initializationPromise;
+      if (initialized && db && sessionId && sessionStatus !== 'closed') {
+        await finalize('encerrado pelo visitante', { silent: true });
+      }
+    } finally {
+      await resetLocalConversation({ signOut: true });
+      closeChat();
+      endBtn.disabled = false;
+    }
+  }
+
   function prepareWhatsAppLink(event) {
     const message = (whatsappPrefillText || '').trim() || defaultWhatsAppMessage();
     const url = whatsappUrl(message);
@@ -536,7 +676,13 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     event.currentTarget.rel = 'noopener noreferrer';
     if (navigator.clipboard && message) navigator.clipboard.writeText(message).catch(() => {});
     if (completedTriage) notifyTriage('whatsapp').catch(() => {});
-    setTimeout(() => { input.disabled = false; sendBtn.disabled = false; endBtn.disabled = false; }, 80);
+    setTimeout(() => {
+      if (initialized && sessionStatus !== 'closed') {
+        input.disabled = false;
+        sendBtn.disabled = false;
+      }
+      endBtn.disabled = false;
+    }, 80);
     setStatus(completedTriage ? `O WhatsApp foi aberto com o código ${completedTriage.code}. Se o texto não aparecer, cole a mensagem copiada automaticamente.` : 'O WhatsApp foi aberto. Esta conversa continua ativa aqui.', 'success');
   }
 
@@ -556,7 +702,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   });
   triageBtn?.addEventListener('click', startTriage);
   humanBtn?.addEventListener('click', requestHuman);
-  endBtn.addEventListener('click', () => finalize('encerrado pelo visitante'));
+  endBtn.addEventListener('click', endAndClose);
   whatsappBtn.addEventListener('mousedown', prepareWhatsAppLink);
   whatsappBtn.addEventListener('touchstart', prepareWhatsAppLink, { passive: true });
   whatsappBtn.addEventListener('click', event => {
@@ -565,6 +711,12 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     whatsappBtn.href = ready;
   });
 
+
+  triageDismissBtn?.addEventListener('click', () => {
+    triageResultEl?.classList.add('hidden');
+    setStatus(`Triagem ${completedTriage?.code || ''} salva. Você pode continuar fazendo perguntas.`, 'success');
+    if (!input.disabled) input.focus();
+  });
 
   copyCodeBtn?.addEventListener('click', async () => {
     if (!completedTriage?.code) return;
@@ -592,9 +744,17 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   triageWhatsappEl?.addEventListener('mousedown', prepareWhatsAppLink);
   triageWhatsappEl?.addEventListener('touchstart', prepareWhatsAppLink, { passive: true });
   triageWhatsappEl?.addEventListener('click', prepareWhatsAppLink);
+  startupWhatsApp?.addEventListener('click', prepareWhatsAppLink);
+  retryBtn?.addEventListener('click', async () => {
+    retryBtn.disabled = true;
+    await resetLocalConversation({ signOut: true });
+    const ok = await ensureInitialized();
+    retryBtn.disabled = false;
+    if (ok && !input.disabled) input.focus();
+  });
 
   window.addEventListener('focus', () => {
-    if (sessionStatus === 'closed' || busy) return;
+    if (!initialized || sessionStatus === 'closed' || busy) return;
     const choiceQuestionActive = triageState?.current?.input_type === 'choice';
     if (!choiceQuestionActive) {
       input.disabled = false;
@@ -603,8 +763,6 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     endBtn.disabled = false;
   });
 
-  initialize().catch(error => {
-    modeEl.textContent = 'Atendimento indisponível';
-    setStatus(`Falha ao iniciar o atendimento: ${error.message}`, 'error');
-  });
+  setInterfaceReady(false);
+  ensureInitialized();
 })();

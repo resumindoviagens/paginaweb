@@ -1,0 +1,42 @@
+RESUMINDO VIAGENS — ALTERAÇÕES V4.5
+Versão técnica: painel-chat-v4.5-recuperacao-sessao
+
+PROBLEMAS CORRIGIDOS
+1. A seção “Triagem concluída” aparecia desde a abertura porque faltava a regra CSS global `.hidden`.
+2. O código fictício RV-00000000 era mostrado antes de existir uma triagem válida.
+3. Quando o Supabase retornava “Anonymous sign-ins are disabled”, o campo de perguntas permanecia visível, mas sem sessão válida.
+4. O botão Encerrar dependia de uma sessão válida e não conseguia fechar/limpar a interface em caso de falha de inicialização.
+5. Uma sessão já encerrada podia ser reaproveitada pelo navegador e manter o atendimento bloqueado.
+6. O botão do WhatsApp podia reativar o campo de perguntas mesmo quando o chat não havia sido inicializado.
+
+ALTERAÇÕES IMPLEMENTADAS
+- Adicionada a classe global `.hidden{display:none!important}`.
+- O cartão de triagem só aparece depois que a gravação no Supabase termina com sucesso.
+- O protocolo inicial foi substituído por “—”.
+- Inclusão de painel de recuperação com “Tentar novamente” e “Continuar pelo WhatsApp”.
+- Mensagens técnicas do Supabase deixaram de ser exibidas diretamente ao visitante.
+- Campos e atalhos ficam bloqueados até a sessão segura estar pronta.
+- Botão Encerrar sempre limpa o estado local, fecha o chat e permite uma conversa nova posteriormente.
+- Sessões fechadas não são reutilizadas.
+- Chaves de sessionStorage e versão do sistema alteradas para v4.5, impedindo reaproveitamento do estado defeituoso da v4.4.
+- Nome visual atualizado para “Chatbox Resumindo Viagens”.
+
+CONFIGURAÇÃO EXTERNA OBRIGATÓRIA
+A v4.5 melhora o tratamento do erro, mas o funcionamento normal ainda exige:
+Supabase > Authentication > Sign In / Providers > Anonymous Sign-Ins = ATIVADO.
+Essa opção não pode ser habilitada pelo arquivo SQL do banco.
+
+ARQUIVOS ALTERADOS
+- index.html
+- style.css
+- script.js
+- package.json
+- api/config.js
+- api/health.js
+- README-CHATBOX.md
+- README-INSTRUCOES.txt
+- GUIA-INSTALACAO-DETALHADO.md
+
+BANCO DE DADOS
+- Nenhuma migração SQL é necessária para quem já executou o setup.sql da v4.4.
+- Não houve mudança de tabelas, RLS ou funções.

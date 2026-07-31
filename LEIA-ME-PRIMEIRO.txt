@@ -1,14 +1,16 @@
-RESUMINDO VIAGENS — PAINEL E CHATBOX V4.1
-
-Este pacote foi reconstruído usando o ZIP paginaweb-main.zip como base.
-Todas as imagens da pasta assets foram preservadas byte por byte.
+RESUMINDO VIAGENS — CHATBOX V4.5
+Versão técnica: painel-chat-v4.5-recuperacao-sessao
 
 ANTES DE PUBLICAR:
 1. Faça backup do repositório atual.
-2. Siga GUIA-INSTALACAO-DETALHADO.md.
-3. Execute supabase/setup.sql no projeto Supabase exclusivo do chatbot.
-4. Cadastre as variáveis do Supabase na Vercel.
-5. Envie o conteúdo deste ZIP para a raiz do repositório e aguarde o deployment.
-6. Confira /api/health e procure a versão painel-chat-v4.4-triagem-retorno.
+2. No Supabase, confirme:
+   Authentication > Sign In / Providers > Anonymous Sign-Ins = ATIVADO.
+3. Envie o conteúdo interno deste pacote para a raiz do repositório.
+4. Aguarde o novo deployment da Vercel.
+5. Acesse /api/health e confirme a versão:
+   painel-chat-v4.5-recuperacao-sessao
+6. Teste o site em janela anônima.
 
+Não é necessário executar novo SQL quando o setup.sql da v4.4 já estiver instalado.
 Não coloque chaves secretas no GitHub.
+Leia também LEIA-PRIMEIRO-V4.5.txt e ALTERACOES-V4.5.txt.

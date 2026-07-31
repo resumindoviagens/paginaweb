@@ -57,17 +57,17 @@
 <div class="modal" id="modal" aria-hidden="true"><div class="modal-backdrop" id="modalBackdrop"></div><div class="modal-card"><button class="modal-close" id="modalClose">×</button><img id="modalImg" src="" alt=""><div class="modal-content"><h2 id="modalTitle"></h2><p id="modalShort"></p><ul id="modalBullets"></ul><p id="modalClosing" class="closing"></p><a id="modalWhats" class="modal-whats" href="https://wa.me/5511981210932" target="_blank">Quero atendimento sobre este serviço</a></div></div></div>
 
 <!-- CHATBOX INTELIGENTE RESUMINDO VIAGENS -->
-<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Abrir assistente virtual" aria-expanded="false">
+<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Abrir Chatbox Resumindo Viagens" aria-expanded="false">
   <span class="chat-launcher-icon">✦</span>
   <span>Fale com a Resumindo</span>
 </button>
 
-<section class="chatbox" id="chatbox" aria-hidden="true" aria-label="Assistente virtual da Resumindo Viagens">
+<section class="chatbox" id="chatbox" aria-hidden="true" aria-label="Chatbox Resumindo Viagens">
   <header class="chatbox-header">
     <div class="chatbox-brand">
       <img class="chatbox-logo" src="assets/chat-icon.png" alt="Resumindo Viagens">
       <div>
-        <strong>Assistente Resumindo</strong>
+        <strong>Chatbox Resumindo Viagens</strong>
         <small id="chatMode">Iniciando atendimento...</small>
       </div>
     </div>
@@ -89,17 +89,26 @@
     <button type="button" id="chatTriage">Iniciar triagem</button>
   </div>
 
+  <section class="chat-startup-error hidden" id="chatStartupError" aria-live="assertive">
+    <strong>Não foi possível iniciar o atendimento</strong>
+    <p id="chatStartupErrorText">Tente novamente ou continue pelo WhatsApp.</p>
+    <div class="chat-startup-actions">
+      <button id="chatRetry" type="button">Tentar novamente</button>
+      <a id="chatStartupWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Continuar pelo WhatsApp</a>
+    </div>
+  </section>
 
   <section class="triage-result hidden" id="chatTriageResult" aria-live="polite">
     <div class="triage-result-head">
       <div><strong>Triagem concluída</strong><span>Seu código de atendimento</span></div>
-      <code id="chatTriageCode">RV-00000000</code>
+      <code id="chatTriageCode">—</code>
     </div>
     <p class="triage-result-text">O resumo foi salvo e enviado para a equipe. Escolha como prefere continuar.</p>
     <div class="triage-continuation-actions">
       <a id="chatTriageWhatsapp" class="triage-primary" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Conversar agora pelo WhatsApp</a>
       <button id="chatCopyCode" class="triage-secondary" type="button">Copiar código</button>
       <button id="chatCallbackToggle" class="triage-secondary" type="button">Quero receber contato</button>
+      <button id="chatTriageDismiss" class="triage-secondary triage-chat-continue" type="button">Continuar fazendo perguntas</button>
     </div>
     <form id="chatCallbackForm" class="callback-form hidden">
       <h3>Solicitar contato da equipe</h3>

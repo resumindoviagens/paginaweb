@@ -1,0 +1,20 @@
+CHATBOX RESUMINDO VIAGENS — V4.5
+
+ANTES DE PUBLICAR
+1. Confirme no Supabase:
+   Authentication > Sign In / Providers > Anonymous Sign-Ins = ATIVADO.
+2. Faça backup do repositório atual.
+3. Envie o conteúdo interno deste pacote para a raiz do repositório.
+4. Aguarde um novo deployment da Vercel.
+5. Acesse /api/health e confirme:
+   version = painel-chat-v4.5-recuperacao-sessao
+6. Teste em janela anônima do navegador.
+
+NÃO É NECESSÁRIO EXECUTAR NOVO SQL se o setup.sql da v4.4 já foi aplicado.
+
+TESTE MÍNIMO
+- Abrir o chat: não deve aparecer “Triagem concluída”.
+- Fazer uma pergunta: deve surgir a resposta.
+- Clicar em Encerrar: o chat deve fechar.
+- Reabrir: deve iniciar uma conversa nova.
+- Iniciar e concluir a triagem: somente então deve aparecer o código RV-XXXXXXXX.

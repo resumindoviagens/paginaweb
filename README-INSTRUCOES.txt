@@ -1,4 +1,4 @@
-RESUMINDO VIAGENS — PAINEL E CHATBOX V4.1
+RESUMINDO VIAGENS — PAINEL E CHATBOX V4.5
 
 ESTE PACOTE FOI RECONSTRUÍDO COM BASE NO ZIP paginaweb-main.zip.
 A pasta assets foi preservada integralmente, inclusive as imagens corrigidas manualmente.
@@ -21,6 +21,6 @@ INSTALAÇÃO:
 5. Cadastre as variáveis do Supabase na Vercel.
 6. Envie o conteúdo interno deste ZIP para a raiz do GitHub.
 7. Aguarde o deployment ficar Ready.
-8. Confira /api/health: a versão deve ser painel-chat-v4.4-triagem-retorno.
+8. Confira /api/health: a versão deve ser painel-chat-v4.5-recuperacao-sessao.
 
 Não substitua a pasta assets por arquivos de versões anteriores.

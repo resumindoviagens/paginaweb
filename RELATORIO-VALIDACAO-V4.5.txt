@@ -1,0 +1,27 @@
+RESUMINDO VIAGENS — RELATÓRIO DE VALIDAÇÃO V4.5
+
+VALIDAÇÕES EXECUTADAS
+[OK] Sintaxe JavaScript de script.js.
+[OK] Sintaxe JavaScript do painel administrativo.
+[OK] Sintaxe de todas as APIs em /api.
+[OK] package.json válido e versão 4.5.0.
+[OK] IDs HTML sem duplicidade.
+[OK] Elementos de recuperação presentes: tentar novamente e WhatsApp.
+[OK] Regra CSS global .hidden presente.
+[OK] Cartão “Triagem concluída” inicia oculto.
+[OK] Código fictício RV-00000000 removido da interface.
+[OK] Nome visual alterado para Chatbox Resumindo Viagens.
+[OK] Versão /api/config e /api/health: painel-chat-v4.5-recuperacao-sessao.
+[OK] Nenhuma alteração em tabelas, políticas RLS ou funções SQL.
+[OK] Pasta assets preservada sem alterações intencionais.
+
+TESTES OBRIGATÓRIOS APÓS O DEPLOYMENT
+1. Confirmar Anonymous Sign-Ins ativado no Supabase.
+2. Abrir o site em janela anônima.
+3. Fazer uma pergunta e confirmar resposta.
+4. Clicar em Encerrar e confirmar fechamento.
+5. Reabrir e confirmar nova conversa.
+6. Concluir triagem e confirmar código RV-XXXXXXXX.
+7. Clicar em Continuar fazendo perguntas.
+8. Testar WhatsApp e solicitação de retorno.
+9. Conferir a conversa e a triagem no painel /admin.
