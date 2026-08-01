@@ -1,27 +1,29 @@
-RESUMINDO VIAGENS — ORIENTAÇÃO RESUMINDO V4.6
+RESUMINDO VIAGENS — ORIENTAÇÃO RESUMINDO V4.7
 ================================================
 
-NOME PÚBLICO ESCOLHIDO
-- Botão de abertura: “Tire suas dúvidas”
-- Área interna: “Orientação Resumindo”
+ESTA VERSÃO CORRIGE DOIS PONTOS CRÍTICOS
+1. A orientação pública somente entrega respostas literais aprovadas no painel.
+2. Sessões sem pergunta não enviam e-mail por inatividade, saída ou encerramento.
 
-A experiência não se apresenta como chatbot. O visitante escreve livremente, sem perguntas sugeridas e sem etapa pública de triagem.
-
-ORDEM OBRIGATÓRIA DE PUBLICAÇÃO
+ORDEM DE PUBLICAÇÃO
 1. Faça backup do repositório e do banco Supabase atuais.
-2. No SQL Editor do mesmo projeto Supabase usado pelo site, execute:
-   supabase/ATUALIZACAO-V4.6.sql
-3. Em Supabase > Authentication, mantenha “Anonymous Sign-Ins” habilitado.
-4. Confira na Vercel as variáveis descritas em .env.example, especialmente:
-   OPENAI_API_KEY, BREVO_API_KEY, SUPABASE_URL,
-   SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY e CRON_SECRET.
-5. Publique o conteúdo desta pasta na raiz do repositório.
-6. Depois do deploy, abra /api/health e confirme:
-   "version": "orientacao-resumindo-v4.6"
-7. Execute o checklist de RELATORIO-VALIDACAO-V4.6.txt.
+2. No SQL Editor do projeto Supabase usado pelo site, execute:
+   supabase/ATUALIZACAO-V4.7.sql
+3. Mantenha “Anonymous Sign-Ins” habilitado no Supabase Authentication.
+4. Confira na Vercel:
+   BREVO_API_KEY, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY,
+   SUPABASE_SECRET_KEY e CRON_SECRET.
+5. OPENAI_API_KEY e OPENAI_MODEL podem ser removidos; esta versão não gera respostas.
+6. Publique o conteúdo desta pasta na raiz do repositório.
+7. Abra /api/health e confirme:
+   "version": "orientacao-resumindo-v4.7"
+   "answerMode": "approved-literal-only"
+   "generativeAnswersEnabled": false
+8. Execute o checklist de RELATORIO-VALIDACAO-V4.7.txt.
 
-ATENÇÃO
-- O SQL V4.6 é necessário para gravar telefone/e-mail opcionais e controlar os relatórios.
-- O e-mail é enviado para contato@resumindoviagens.com.br ao abrir o WhatsApp, após 15 minutos de inatividade com a página aberta, ao sair da página e ao encerrar manualmente.
-- Uma rotina diária da Vercel tenta recuperar relatórios que tenham falhado por fechamento abrupto ou indisponibilidade momentânea.
-- O relatório interno contém resumo, perguntas integrais e as respostas correspondentes.
+AJUSTE DE RESPOSTAS DEPOIS DO DEPLOY
+- Acesse /admin > Base de respostas.
+- O texto de “Resposta aprovada” será exibido exatamente como estiver escrito.
+- Para reconhecer outras formas da mesma dúvida, acrescente frases completas em “Variações da pergunta”.
+- Não dependa de palavras-chave para selecionar respostas.
+- A mensagem geral para perguntas não reconhecidas fica em /admin > Configurações.

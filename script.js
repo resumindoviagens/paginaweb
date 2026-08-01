@@ -1,14 +1,14 @@
 const filters=document.querySelectorAll('.filter');const cards=document.querySelectorAll('.card');filters.forEach(btn=>btn.addEventListener('click',()=>{filters.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;cards.forEach(c=>c.style.display=f==='Todos'||c.dataset.category===f?'':'none')}));const modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),modalShort=document.getElementById('modalShort'),modalImg=document.getElementById('modalImg'),modalBullets=document.getElementById('modalBullets'),modalClosing=document.getElementById('modalClosing'),modalWhats=document.getElementById('modalWhats');document.querySelectorAll('.more-btn').forEach(btn=>btn.addEventListener('click',()=>{const title=btn.dataset.title;modalTitle.textContent=title;modalShort.textContent=btn.dataset.short;modalImg.src=btn.dataset.img;modalImg.alt=title;modalBullets.innerHTML=JSON.parse(btn.dataset.bullets).map(i=>`<li>${i}</li>`).join('');modalClosing.textContent=btn.dataset.closing;modalWhats.href=`https://wa.me/5511981210932?text=${encodeURIComponent('Olá, gostaria de mais informações sobre: '+title)}`;modal.classList.add('open');modal.setAttribute('aria-hidden','false')}));function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}document.getElementById('modalClose').addEventListener('click',closeModal);document.getElementById('modalBackdrop').addEventListener('click',closeModal);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 /* =========================================================
-   ORIENTAÇÃO RESUMINDO V4.6
+   ORIENTAÇÃO RESUMINDO V4.7
    Entrada nominal, perguntas livres e encaminhamento premium.
    ========================================================= */
 (() => {
   const $ = selector => document.querySelector(selector);
   const WHATSAPP_DEFAULT = '5511981210932';
-  const STORAGE_KEY = 'resumindo_guidance_v46';
-  const VERSION = 'orientacao-resumindo-v4.6';
+  const STORAGE_KEY = 'resumindo_guidance_v47';
+  const VERSION = 'orientacao-resumindo-v4.7';
   const IDLE_MS = 15 * 60 * 1000;
   const HEARTBEAT_MS = 60 * 1000;
 
@@ -86,6 +86,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
       sessionId,
       version: VERSION,
       profile,
+      hasQuestion: conversationStarted,
       lastActivityAt: Date.now(),
       ...extra
     };
@@ -183,6 +184,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     if (sender === 'visitor') {
       conversationStarted = true;
       lastVisitorQuestion = clean(message.content, 1200);
+      if (sessionId) storeState({ hasQuestion: true });
     }
     scrollToBottom();
   }
@@ -203,7 +205,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     panel.setAttribute('aria-hidden', 'false');
     launcher.setAttribute('aria-expanded', 'true');
     const stored = safeStoredState();
-    if (!initialized && stored?.version === VERSION && stored?.profile?.name) {
+    if (!initialized && stored?.version === VERSION && stored?.profile?.name && stored?.hasQuestion) {
       ensureInitialized(stored.profile).catch(() => {});
     }
     if (initialized && sessionStatus !== 'closed') recordActivity(false);
@@ -378,7 +380,12 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     if (data?.length) {
       data.forEach(renderMessage);
     } else {
-      localMessage(`Olá, ${profile.name.split(/\s+/)[0]}. Escreva livremente sua dúvida. Esta etapa esclarece informações gerais; quando houver necessidade de analisar detalhes do seu caso, a equipe dará continuidade diretamente com você.`, 'bot');
+      const configuredWelcome = clean(settings.welcome_message, 1200);
+      const firstName = profile.name.split(/\s+/)[0];
+      localMessage(
+        configuredWelcome || `Olá, ${firstName}. Escreva livremente sua dúvida. Esta etapa esclarece informações gerais; quando houver necessidade de analisar detalhes do seu caso, a equipe dará continuidade diretamente com você.`,
+        'bot'
+      );
     }
   }
 
@@ -441,12 +448,18 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
 
   async function handleIdle() {
     if (!initialized || sessionStatus === 'closed' || finalizing) return;
-    setStatus('Encerrando por inatividade e encaminhando a cópia à equipe...');
-    const sent = await finalize('inatividade por 15 minutos', { silent: true, keepalive: true });
-    setEndedState(
-      sent ? 'Orientação encerrada após 15 minutos sem interação. A equipe recebeu a cópia para acompanhamento.' : 'Orientação encerrada por inatividade. O sistema tentará novamente o envio da cópia.',
-      sent ? 'success' : 'error'
-    );
+    setStatus(conversationStarted
+      ? 'Encerrando por inatividade e encaminhando a conversa à equipe...'
+      : 'Encerrando a orientação sem enviar notificação, pois nenhuma pergunta foi feita...');
+    const result = await finalize('inatividade por 15 minutos', { silent: true, keepalive: true });
+    if (result.noQuestions || result.skipped) {
+      setEndedState('Orientação encerrada após 15 minutos sem interação. Nenhuma notificação foi enviada porque não houve pergunta.', 'success');
+    } else {
+      setEndedState(
+        result.emailSent ? 'Orientação encerrada após 15 minutos sem interação. A equipe recebeu a conversa para acompanhamento.' : 'Orientação encerrada por inatividade. O sistema tentará novamente o envio da conversa.',
+        result.emailSent ? 'success' : 'error'
+      );
+    }
   }
 
   async function ask(text) {
@@ -483,10 +496,16 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   }
 
   async function finalize(reason, { silent = false, keepalive = false } = {}) {
-    if (finalizing || !db || !sessionId || sessionStatus === 'closed') return true;
+    if (finalizing || !db || !sessionId || sessionStatus === 'closed') {
+      return { ok: true, alreadyClosed: true, emailSent: false };
+    }
     finalizing = true;
     clearTimeout(idleTimer);
-    if (!silent) setStatus('Encaminhando a cópia à equipe...');
+    if (!silent) {
+      setStatus(conversationStarted
+        ? 'Encaminhando a conversa à equipe...'
+        : 'Encerrando sem enviar notificação, pois nenhuma pergunta foi feita...');
+    }
     try {
       const token = await accessToken();
       const data = await fetchJson('/api/end-session', {
@@ -506,14 +525,25 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
       sessionStatus = 'closed';
       initialized = false;
       setInterfaceReady(false);
-      if (!silent) setStatus(data.emailSent === false ? 'Orientação encerrada.' : 'Cópia encaminhada à equipe.', 'success');
-      return true;
+      if (!silent) {
+        if (data.noQuestions || data.skipped) {
+          setStatus('Orientação encerrada sem notificação, pois nenhuma pergunta foi feita.', 'success');
+        } else {
+          setStatus(data.emailSent === false ? 'Orientação encerrada.' : 'Conversa encaminhada à equipe.', 'success');
+        }
+      }
+      return { ok: true, ...data };
     } catch (error) {
       sessionStatus = 'closed';
       initialized = false;
       setInterfaceReady(false);
-      setStatus('A orientação foi encerrada. O envio da cópia será tentado novamente pelo sistema.', 'error');
-      return false;
+      setStatus(
+        conversationStarted
+          ? 'A orientação foi encerrada. O envio da conversa será tentado novamente pelo sistema.'
+          : 'A orientação foi encerrada sem pergunta.',
+        conversationStarted ? 'error' : 'success'
+      );
+      return { ok: false, emailSent: false, error };
     } finally {
       finalizing = false;
     }
@@ -637,11 +667,13 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
   whatsappBtn.addEventListener('pointerdown', () => { updateWhatsAppLink(); }, { passive: true });
   whatsappBtn.addEventListener('click', () => {
     updateWhatsAppLink();
-    setStatus('Abrindo o WhatsApp e encaminhando a cópia à equipe...', 'success');
-    void finalize('continuação pelo WhatsApp', { silent: true, keepalive: true }).then(sent => {
+    setStatus('Abrindo o WhatsApp e encaminhando os dados do atendimento à equipe...', 'success');
+    void finalize('continuação pelo WhatsApp', { silent: true, keepalive: true }).then(result => {
       setEndedState(
-        sent ? 'A conversa foi encaminhada à equipe. O atendimento continuará pelo WhatsApp.' : 'O WhatsApp foi aberto. O sistema tentará novamente o envio da cópia à equipe.',
-        sent ? 'success' : 'error'
+        result.emailSent
+          ? 'O atendimento foi encaminhado à equipe e continuará pelo WhatsApp.'
+          : 'O WhatsApp foi aberto. O sistema tentará novamente o encaminhamento à equipe.',
+        result.emailSent ? 'success' : 'error'
       );
     });
   });
@@ -660,6 +692,7 @@ const filters=document.querySelectorAll('.filter');const cards=document.querySel
     else scheduleIdle(last);
   });
 
+  try { sessionStorage.removeItem('resumindo_guidance_v46'); } catch {}
   const stored = safeStoredState();
   if (stored?.version === VERSION && stored?.profile?.name) {
     profile = stored.profile;

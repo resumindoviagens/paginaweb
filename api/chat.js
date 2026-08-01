@@ -1,85 +1,34 @@
 import {
-  WHATSAPP_URL,
   isRestrictedClientDataRequest,
   restrictedAnswer
 } from "../lib/knowledge.js";
+import { selectApprovedAnswer } from "../lib/answer-matcher.js";
 import {
   authenticatedUser,
   hasSupabaseConfig,
   secretSupabaseClient
 } from "../lib/supabase-server.js";
 
+const DEFAULT_NO_ANSWER = "Ainda não tenho uma orientação aprovada e segura para responder a essa dúvida por aqui. Como a resposta pode depender de uma análise individual, a equipe da Resumindo Viagens poderá orientar você pessoalmente. Use a opção “Aprofundar pelo WhatsApp” e não envie documentos ou dados pessoais nesta área.";
+
 function cleanText(value, max = 1800) {
   return String(value ?? "").replace(/\u0000/g, "").trim().slice(0, max);
-}
-
-function normalize(value) {
-  return cleanText(value, 5000)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-const STOP = new Set("a o os as de da do das dos e em no na nos nas um uma para por com que qual quais como meu minha seus suas voce voces eu ele ela isso este esta ao ou ja mais muito sobre se tem ter foi ser sao".split(" "));
-
-function tokens(value) {
-  return normalize(value).split(" ").filter(t => t.length > 2 && !STOP.has(t));
-}
-
-function asksForHandoff(question) {
-  return /\b(?:preço|preco|precos|valor|valores|quanto custa|orçamento|orcamento|cotação|cotacao|contratar|iniciar|dar andamento|disponibilidade|meu caso|meu perfil|sou elegível|sou elegivel|falar com atendente|falar com uma pessoa)\b/i.test(normalize(question));
-}
-
-function knowledgeScore(question, item) {
-  const q = normalize(question);
-  const sources = [item.question, ...(item.variations || []), ...(item.keywords || [])]
-    .filter(Boolean).map(normalize);
-  let best = 0;
-  const qTokens = new Set(tokens(q));
-  for (const source of sources) {
-    if (!source) continue;
-    if (q === source) best = Math.max(best, 1);
-    if (q.includes(source) || source.includes(q)) best = Math.max(best, .90);
-    const sTokens = new Set(tokens(source));
-    if (!qTokens.size || !sTokens.size) continue;
-    const common = [...qTokens].filter(t => sTokens.has(t)).length;
-    const precision = common / Math.max(qTokens.size, 1);
-    const recall = common / Math.max(sTokens.size, 1);
-    const f1 = common ? (2 * precision * recall) / (precision + recall) : 0;
-    best = Math.max(best, f1);
-  }
-  return best + Math.min(Number(item.priority || 0), 100) / 10000;
-}
-
-function extractOutputText(payload) {
-  if (typeof payload?.output_text === "string") return payload.output_text.trim();
-  const parts = [];
-  for (const item of payload?.output || []) {
-    for (const content of item?.content || []) {
-      if ((content?.type === "output_text" || content?.type === "text") && typeof content?.text === "string") {
-        parts.push(content.text);
-      }
-    }
-  }
-  return parts.join("\n").trim();
-}
-
-function conversationText(messages, question) {
-  const lines = (messages || []).slice(-12).map(item => {
-    const label = item.sender_type === "human" ? "Equipe Resumindo" : item.role === "assistant" ? "Orientação Resumindo" : "Pessoa";
-    return `${label}: ${cleanText(item.content, 1600)}`;
-  });
-  lines.push(`Visitante: ${question}`);
-  return lines.join("\n");
 }
 
 async function insertMessage(db, message) {
   const { data, error } = await db.from("chat_messages").insert(message).select().single();
   if (error) throw error;
   return data;
+}
+
+async function noAnswerMessage(db) {
+  const { data, error } = await db
+    .from("chat_settings")
+    .select("value")
+    .eq("key", "no_answer_message")
+    .maybeSingle();
+  if (error) console.error("No-answer setting query error", error);
+  return cleanText(data?.value, 6000) || DEFAULT_NO_ANSWER;
 }
 
 export default async function handler(req, res) {
@@ -133,111 +82,34 @@ export default async function handler(req, res) {
     answer = restrictedAnswer();
     source = "privacy-rule";
   } else {
-    const { data: items, error: kbError } = await db
+    const { data: items, error: knowledgeError } = await db
       .from("knowledge_items")
-      .select("id,category,question,variations,answer,keywords,response_mode,whatsapp_on,priority,requires_review,valid_until")
+      .select("id,category,question,variations,answer,response_mode,priority,requires_review,valid_until,active")
       .eq("active", true)
       .order("priority", { ascending: false });
-    if (kbError) console.error("Knowledge query error", kbError);
 
-    const ranked = (items || [])
-      .map(item => ({ item, score: knowledgeScore(question, item) }))
-      .sort((a, b) => b.score - a.score);
-    const best = ranked[0];
-
-    if (best && best.score >= 0.73 && best.item.response_mode === "human_only") {
-      answer = `Essa dúvida precisa de uma análise individual. A equipe da Resumindo Viagens pode aprofundar o atendimento com você pelo WhatsApp: ${WHATSAPP_URL}`;
-      source = "human-only";
-      metadata = { knowledge_id: best.item.id, match_score: Number(best.score.toFixed(3)) };
-    } else if (best && best.score >= 0.73) {
-      answer = best.item.answer;
-      if (best.item.whatsapp_on && best.item.response_mode === "direct_and_handoff" && asksForHandoff(question) && !answer.includes("wa.me/")) {
-        answer += `\n\nComo essa parte depende dos detalhes do seu caso, a equipe pode aprofundar o atendimento com você pelo WhatsApp: ${WHATSAPP_URL}`;
-      }
-      source = "knowledge-direct";
-      metadata = { knowledge_id: best.item.id, match_score: Number(best.score.toFixed(3)) };
-    } else if (!process.env.OPENAI_API_KEY) {
-      answer = best?.item?.answer || `Não encontrei uma orientação segura para essa dúvida geral. A equipe da Resumindo Viagens pode analisar o contexto com você pelo WhatsApp: ${WHATSAPP_URL}`;
-      source = best ? "knowledge-fallback" : "human-fallback";
+    if (knowledgeError) {
+      console.error("Knowledge query error", knowledgeError);
+      answer = await noAnswerMessage(db);
+      source = "approved-fallback";
     } else {
-      const relatedMatches = ranked.slice(0, 4).filter(match => match.score > .08);
-      const related = relatedMatches.map(({item}) => ({
-        category: item.category,
-        question: item.question,
-        answer: item.answer,
-        response_mode: item.response_mode,
-        requires_review: item.requires_review,
-        valid_until: item.valid_until
-      }));
-      const { data: recent } = await db
-        .from("chat_messages")
-        .select("id,role,sender_type,content,created_at")
-        .eq("session_id", sessionId)
-        .order("created_at", { ascending: false })
-        .limit(14);
-      const history = (recent || []).reverse().filter(message => message.id !== userMessage.id);
-
-      const instructions = `
-Você faz a orientação inicial da Resumindo Viagens. Responda em português do Brasil, com clareza, acolhimento, discrição e tom profissional.
-
-REGRAS:
-- Entregue primeiro uma resposta útil para a dúvida geral apresentada.
-- Não se apresente como chatbot, robô ou inteligência artificial.
-- Use somente as respostas aprovadas fornecidas abaixo e o contexto da conversa.
-- Quando faltar contexto, faça no máximo uma pergunta curta e geral de esclarecimento; não conduza uma triagem longa.
-- O atendimento da Resumindo Viagens é individual e premium. Quando a questão depender de perfil, documentos, datas, valores, disponibilidade, contratação ou regra oficial variável, explique brevemente por que a análise precisa ser personalizada e convide a pessoa a aprofundar o contato com a equipe.
-- Não encaminhe automaticamente ao WhatsApp quando a dúvida puder ser respondida de forma geral.
-- Nunca invente valores, prazos, requisitos, disponibilidade ou garantia de aprovação.
-- Nunca confirme ou negue quem é cliente e nunca acesse, consulte ou altere dados privados.
-- Não solicite CPF, número de passaporte, visto, DS-160, protocolo, senha, documentos, comprovantes, dados bancários ou outras informações pessoais ou sensíveis.
-- Se houver conteúdo marcado para revisão ou com validade, não o trate como regra oficial definitiva.
-- Evite linguagem massificada, frases prontas de call center e promessas vagas.
-- Responda normalmente em 3 a 8 frases.
-- Link de atendimento, somente quando realmente necessário: ${WHATSAPP_URL}
-
-RESPOSTAS APROVADAS RELACIONADAS:
-${JSON.stringify(related, null, 2)}
-`;
-
-      try {
-        const apiResponse = await fetch("https://api.openai.com/v1/responses", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: (!process.env.OPENAI_MODEL?.trim() || process.env.OPENAI_MODEL.trim() === "OPENAI_MODEL") ? "gpt-5-mini" : process.env.OPENAI_MODEL.trim(),
-            instructions,
-            input: conversationText(history, question),
-            max_output_tokens: 700,
-            store: false
-          })
-        });
-        const payload = await apiResponse.json().catch(() => ({}));
-        if (!apiResponse.ok) {
-          console.error("OpenAI API error", apiResponse.status, payload?.error?.message || payload);
-          throw new Error("Falha na resposta automática.");
-        }
-        answer = extractOutputText(payload);
-        if (!answer) throw new Error("Resposta vazia.");
-        source = "openai-assisted";
+      const match = selectApprovedAnswer(question, items || []);
+      if (match) {
+        // Entrega literal: nenhuma palavra é acrescentada, removida, resumida ou reformulada.
+        answer = cleanText(match.item.answer, 6000);
+        source = "knowledge-literal";
         metadata = {
-          input_tokens: payload?.usage?.input_tokens || null,
-          output_tokens: payload?.usage?.output_tokens || null,
-          related_knowledge_ids: relatedMatches.map(match => match.item.id)
+          knowledge_id: match.item.id,
+          match_score: Number(match.score.toFixed(3)),
+          exact_match: Boolean(match.exact),
+          matched_text: cleanText(match.matchedText, 500),
+          response_mode: cleanText(match.item.response_mode, 40)
         };
-      } catch (error) {
-        console.error("Chat handler error", error);
-        answer = best?.item?.answer || `Não encontrei uma orientação segura para essa dúvida neste momento. A equipe da Resumindo Viagens pode analisar o contexto com você pelo WhatsApp: ${WHATSAPP_URL}`;
-        source = best ? "knowledge-safe-fallback" : "safe-fallback";
+      } else {
+        answer = await noAnswerMessage(db);
+        source = "approved-fallback";
       }
     }
-  }
-
-  if (/\b(?:acessei|consultei|verifiquei|alterei|atualizei)\b.{0,50}\b(?:cadastro|processo|cliente|sistema|dados)\b/i.test(answer)) {
-    answer = restrictedAnswer();
-    source = "privacy-defense";
   }
 
   const assistantMessage = await insertMessage(db, {
@@ -248,5 +120,5 @@ ${JSON.stringify(related, null, 2)}
     source,
     metadata
   });
-  return res.status(200).json({ ok: true, userMessage, assistantMessage });
+  return res.status(200).json({ ok: true, userMessage, assistantMessage, literalApprovedOnly: true });
 }

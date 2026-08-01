@@ -1,0 +1,39 @@
+ALTERAÇÕES V4.7 — RESPOSTAS LITERAIS E NOTIFICAÇÕES ÚTEIS
+==========================================================
+
+1. RESPOSTAS SOMENTE A PARTIR DA BASE APROVADA
+- Removida a geração de respostas pela API da OpenAI.
+- A API não cria, completa, resume, combina nem reformula textos.
+- Quando houver correspondência inequívoca, a resposta cadastrada no painel é exibida literalmente.
+- A seleção considera apenas a pergunta principal e as variações completas cadastradas.
+- Palavras-chave deixaram de decidir qual resposta será exibida; servem somente para busca e organização no painel.
+- Se a correspondência for fraca ou ambígua, nenhuma resposta aproximada é usada.
+- Nesses casos, o site exibe uma mensagem de segurança editável em /admin > Configurações.
+
+2. NOVA RESPOSTA: CHANCES DE APROVAÇÃO
+- Criada resposta específica para “Quais são minhas chances de ter o visto americano aprovado?”.
+- Incluídas variações comuns da mesma pergunta.
+- A resposta esclarece que não é possível estimar aprovação de forma responsável sem análise individual.
+- O texto menciona perfil, DS-160, propósito da viagem, entrevista e decisão exclusiva da autoridade consular.
+
+3. BLOQUEIO DE E-MAILS SEM PERGUNTA
+- Inatividade, saída da página e encerramento sem qualquer pergunta não geram e-mail.
+- Essas sessões são encerradas silenciosamente e marcadas como “skipped:no-question”.
+- Abrir a orientação, informar nome ou deixar a página aberta não é suficiente para notificar a equipe.
+- O clique em “Aprofundar pelo WhatsApp” continua sendo tratado como pedido explícito de contato e pode gerar relatório mesmo sem pergunta.
+- Quando existe pelo menos uma pergunta, o relatório continua sendo enviado na inatividade, saída, encerramento ou WhatsApp.
+
+4. PAINEL ADMINISTRATIVO
+- Incluída explicação visível de que a resposta é literal.
+- Variações devem ser cadastradas como frases completas.
+- Palavras-chave foram identificadas como campos internos, sem influência na escolha pública.
+- Adicionado campo “Mensagem quando não houver resposta aprovada” em Configurações.
+
+5. SEGURANÇA E COMPATIBILIDADE
+- Nova chave de armazenamento local v4.7, evitando reaproveitamento de estados antigos da v4.6.
+- /api/health informa answerMode: approved-literal-only e generativeAnswersEnabled: false.
+- OPENAI_API_KEY e OPENAI_MODEL não são mais necessários.
+- Mantida compatibilidade com as tabelas e registros existentes.
+
+VERSÃO
+orientacao-resumindo-v4.7

@@ -1,0 +1,47 @@
+RELATÓRIO DE VALIDAÇÃO — ORIENTAÇÃO RESUMINDO V4.6
+==================================================
+
+DATA DA VALIDAÇÃO
+31/07/2026
+
+VALIDAÇÕES AUTOMATIZADAS REALIZADAS
+[OK] Sintaxe de script.js.
+[OK] Sintaxe de admin/admin.js.
+[OK] Sintaxe das APIs de orientação, encerramento, configuração, saúde, limpeza e legado.
+[OK] Sintaxe dos módulos de relatório e conhecimento.
+[OK] Fluxo visual em viewport móvel de 390 × 844.
+[OK] Fluxo visual em viewport desktop de 1365 × 850.
+[OK] Fundo de orientação central e fechamento pelo X/fundo.
+[OK] Ausência do antigo botão flutuante independente de WhatsApp.
+[OK] Ausência de perguntas sugeridas, chips e tópicos.
+[OK] Ausência do quadro “Triagem concluída”.
+[OK] Nome obrigatório e mensagem de validação.
+[OK] Telefone e e-mail opcionais.
+[OK] Transição da identificação para a área de perguntas livres.
+[OK] Renderização de “Sua pergunta” e “Orientação Resumindo” em cartões editoriais.
+[OK] Envio simulado de pergunta e resposta.
+[OK] Geração simulada do relatório interno.
+[OK] Destinatário do relatório: contato@resumindoviagens.com.br.
+[OK] Preservação integral da pergunta e da resposta no e-mail.
+[OK] Reply-To usando o e-mail opcional do visitante quando válido.
+[OK] Registro de report_sent_at, report_message_id e report_reason após envio.
+[OK] Versão técnica: orientacao-resumindo-v4.6.
+
+COMANDOS EXECUTADOS
+- npm run check
+- testes de interface com Chromium/Playwright e serviços simulados
+- teste unitário do gerador de relatório com Brevo e banco simulados
+
+VALIDAÇÕES QUE DEPENDEM DO AMBIENTE DE PRODUÇÃO
+[ ] Executar supabase/ATUALIZACAO-V4.6.sql no projeto real.
+[ ] Confirmar Anonymous Sign-Ins habilitado no Supabase.
+[ ] Confirmar variáveis de produção na Vercel.
+[ ] Confirmar /api/health após o deploy.
+[ ] Enviar uma pergunta real e validar a resposta do modelo configurado.
+[ ] Clicar no WhatsApp e confirmar o recebimento real pelo Brevo.
+[ ] Testar 15 minutos de inatividade em produção.
+[ ] Confirmar a rotina diária de recuperação nos logs da Vercel.
+[ ] Confirmar os registros e contatos opcionais em /admin.
+
+RESULTADO
+O pacote está consistente e pronto para publicação após a execução do SQL V4.6 e a conferência das variáveis de ambiente. Os testes externos de Supabase, OpenAI, Brevo e Vercel somente podem ser concluídos depois do deploy no projeto real.

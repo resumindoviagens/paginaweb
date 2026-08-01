@@ -1,33 +1,24 @@
-# Publicação da Orientação Resumindo V4.6
+# Publicação da Orientação Resumindo V4.7
 
 ## 1. Backup
 
-Antes da atualização, salve uma cópia do repositório atual e exporte as tabelas do projeto Supabase.
+Faça backup do repositório atual e do projeto Supabase antes da publicação.
 
-## 2. Atualização do Supabase
+## 2. Atualização do banco
 
-No **SQL Editor** do projeto já utilizado pelo site, execute integralmente:
+No SQL Editor do Supabase usado pelo site, execute:
 
 ```text
-supabase/ATUALIZACAO-V4.6.sql
+supabase/ATUALIZACAO-V4.7.sql
 ```
 
-O script é idempotente e acrescenta:
-
-- `visitor_phone` e `visitor_email` em `chat_sessions`;
-- `report_reason` para registrar o motivo do encerramento;
-- RPC `create_guidance_session`;
-- RPC `touch_guidance_session`.
-
-Depois, em **Authentication**, confirme que o acesso anônimo permanece habilitado. A orientação usa uma identidade temporária protegida pelas políticas RLS existentes.
+O script cria a mensagem editável de segurança e cadastra a resposta específica sobre chances de aprovação do visto americano. Ele pode ser executado novamente sem duplicar a pergunta.
 
 ## 3. Variáveis da Vercel
 
-Confira as variáveis de produção:
+Necessárias:
 
 ```text
-OPENAI_API_KEY
-OPENAI_MODEL
 BREVO_API_KEY
 SUPABASE_URL
 SUPABASE_PUBLISHABLE_KEY
@@ -35,51 +26,50 @@ SUPABASE_SECRET_KEY
 CRON_SECRET
 ```
 
-Use no `CRON_SECRET` uma sequência aleatória longa, sem quebra de linha. Não coloque chaves secretas no HTML, em `script.js` ou no GitHub.
+Não são mais necessárias:
+
+```text
+OPENAI_API_KEY
+OPENAI_MODEL
+```
+
+A v4.7 não chama modelo generativo para responder visitantes.
 
 ## 4. Publicação
 
-Substitua os arquivos do repositório pelos arquivos desta pasta e faça o deploy de produção. O `vercel.json` mantém uma rotina diária de recuperação e limpeza. Os disparos imediatos por WhatsApp, inatividade e saída da página são feitos pelo navegador e pelas APIs do projeto.
+Substitua o conteúdo da raiz do repositório pelos arquivos desta pasta e aguarde o deploy da Vercel.
 
-## 5. Validação técnica
+## 5. Verificação
 
-Abra:
-
-```text
-/api/health
-```
-
-O retorno deve conter:
+Abra `/api/health`. O retorno deve incluir:
 
 ```json
 {
-  "ok": true,
-  "version": "orientacao-resumindo-v4.6",
-  "brevoConfigured": true,
-  "supabaseUrlConfigured": true,
-  "supabasePublishableConfigured": true,
-  "supabaseSecretConfigured": true
+  "version": "orientacao-resumindo-v4.7",
+  "answerMode": "approved-literal-only",
+  "generativeAnswersEnabled": false
 }
 ```
 
-## 6. Teste funcional mínimo
+## 6. Teste da resposta sobre aprovação
 
-1. Abra o site em janela anônima.
-2. Confirme que existe apenas o botão **Tire suas dúvidas** no canto.
-3. Confirme que não existem tópicos ou perguntas sugeridas.
-4. Tente iniciar sem nome e verifique a validação.
-5. Inicie com nome e sem contato; faça uma pergunta.
-6. Faça outro teste com telefone e e-mail.
-7. Clique em **Aprofundar pelo WhatsApp** e confira o e-mail recebido.
-8. Confirme no e-mail a pergunta integral e a resposta correspondente.
-9. Inicie nova orientação, deixe sem interação por 15 minutos e confira o encerramento.
-10. Acesse `/admin` e confirme a visualização do registro e dos contatos opcionais.
+Pergunte exatamente:
 
-## 7. Recuperação
+```text
+Gostaria de saber quais são minhas chances de ter o visto americano aprovado?
+```
 
-Caso o e-mail não chegue:
+A resposta deve ser a cadastrada pelo SQL V4.7, sem qualquer alteração ou complemento.
 
-- confira `BREVO_API_KEY` e os logs de `/api/end-session`;
-- confira se `CRON_SECRET` está definido;
-- confira os logs de `/api/cleanup` no deploy de produção;
-- verifique no Supabase os campos `report_sent_at`, `report_message_id` e `report_reason` da sessão.
+## 7. Teste de ausência de resposta
+
+Faça uma pergunta que não exista na base. O site deve apresentar somente a mensagem de segurança configurada no painel, sem aproveitar uma resposta aproximada.
+
+## 8. Teste de notificações
+
+1. Inicie a orientação, informe um nome e não faça pergunta.
+2. Aguarde a inatividade ou encerre.
+3. Confirme que nenhum e-mail foi enviado.
+4. Repita, desta vez fazendo uma pergunta.
+5. Confirme que o relatório foi enviado e contém a pergunta e a resposta integrais.
+6. Clique no WhatsApp sem fazer pergunta e confirme que o pedido explícito de contato pode gerar relatório.

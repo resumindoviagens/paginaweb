@@ -345,10 +345,11 @@ insert into public.chat_settings(key,value) values
 ('human_available','false'::jsonb),
 ('whatsapp_number','"5511981210932"'::jsonb),
 ('welcome_message','"Olá! Esta é a orientação inicial da Resumindo Viagens. Escreva livremente sua dúvida geral."'::jsonb),
+('no_answer_message','"Ainda não tenho uma orientação aprovada e segura para responder a essa dúvida por aqui. Como a resposta pode depender de uma análise individual, a equipe da Resumindo Viagens poderá orientar você pessoalmente. Use a opção “Aprofundar pelo WhatsApp” e não envie documentos ou dados pessoais nesta área."'::jsonb),
 ('retention_days','90'::jsonb)
 on conflict(key) do nothing;
 
--- Dez respostas aprovadas
+-- Onze respostas aprovadas
 insert into public.knowledge_items(category,question,variations,answer,keywords,response_mode,whatsapp_on,priority,active,requires_review)
 values
 ('Institucional','Quais serviços a Resumindo Viagens oferece?',array['O que a Resumindo Viagens faz?','Quais são os serviços de vocês?','Como a Resumindo pode me ajudar?'],
@@ -370,6 +371,10 @@ array['DS-160','inglês','entrevista','videochamada','agendamento'], 'direct',fa
 ('Visto americano','Contratando a assessoria, meu visto será aprovado?',array['Vocês garantem aprovação?','A assessoria garante o visto?','É certeza que meu visto será aprovado?'],
 'A assessoria é um serviço de meio, e não de resultado. Isso significa que trabalhamos para preparar o processo da melhor forma possível, com organização, análise, preenchimento e orientação, mas a decisão final pertence exclusivamente à autoridade consular. Nosso compromisso é atuar com técnica, responsabilidade, clareza e segurança, sem criar informações e sem prometer aprovação.',
 array['garantia','aprovação','serviço de meio'], 'direct',false,100,true,false),
+
+('Visto americano','Quais são minhas chances de ter o visto americano aprovado?',array['Gostaria de saber quais são minhas chances de ter o visto americano aprovado?','Tenho chances de conseguir o visto americano?','Qual é a probabilidade de meu visto ser aprovado?','Vocês conseguem avaliar minhas chances de aprovação?','Meu perfil tem chance de aprovação?','É possível saber se meu visto será aprovado?','Qual a chance de eu conseguir o visto?','Vocês conseguem analisar se meu visto tem chance?'],
+'Não é possível estimar de forma responsável as chances de aprovação com base apenas em uma pergunta geral. A decisão é exclusiva da autoridade consular e depende da análise conjunta do perfil do solicitante, das informações declaradas no DS-160, do propósito da viagem e da entrevista consular. A Resumindo Viagens pode analisar esses elementos individualmente, identificar pontos que mereçam atenção e preparar o solicitante para apresentar informações verdadeiras, claras e coerentes. Essa análise e preparação não representam garantia de aprovação. Para uma avaliação personalizada, aprofunde o atendimento com a equipe e não envie documentos ou dados pessoais por esta área.',
+array['chances de aprovação','probabilidade de aprovação','perfil do solicitante','aprovação do visto','DS-160','entrevista consular','análise individual'], 'direct',false,100,true,false),
 
 ('Visto americano','Meu visto foi negado. Vocês conseguem descobrir o motivo e ajudar?',array['Tive o visto recusado','Por que meu visto foi negado?','Posso tentar de novo depois da negativa?'],
 'A negativa nem sempre vem acompanhada do motivo exato, por isso não é possível afirmar com certeza o que levou à decisão. Ainda assim, podemos analisar o formulário anterior, o perfil informado e, quando possível, a dinâmica da entrevista e o momento em que ela foi interrompida. Isso pode indicar fatores que possivelmente contribuíram para a recusa e orientar uma nova solicitação, apresentando as informações com mais clareza. A avaliação é individual e não garante resultado. Para começar, informe apenas em que ano ocorreu a negativa e, de forma geral, como foi a entrevista, sem compartilhar dados pessoais.',

@@ -1,0 +1,54 @@
+CHECKLIST DE VALIDAÇÃO — V4.7
+=============================
+
+A. PUBLICAÇÃO
+[ ] Executar supabase/ATUALIZACAO-V4.7.sql.
+[ ] Confirmar Anonymous Sign-Ins habilitado.
+[ ] Confirmar variáveis do Supabase, Brevo e CRON_SECRET.
+[ ] Publicar o projeto.
+[ ] Confirmar /api/health com version v4.7.
+[ ] Confirmar generativeAnswersEnabled: false.
+
+B. RESPOSTAS LITERAIS
+[ ] Perguntar uma frase idêntica à pergunta principal cadastrada.
+[ ] Confirmar que a resposta é exatamente igual ao texto do painel.
+[ ] Perguntar uma variação cadastrada.
+[ ] Confirmar que a mesma resposta literal é exibida.
+[ ] Fazer pergunta não cadastrada.
+[ ] Confirmar que apenas a mensagem de segurança é exibida.
+[ ] Confirmar que uma pergunta sobre chances não recebe resposta de renovação.
+[ ] Confirmar que perguntas ambíguas não selecionam resposta aproximada.
+
+C. RESPOSTA SOBRE CHANCES DE APROVAÇÃO
+[ ] Confirmar que o item existe em /admin > Base de respostas.
+[ ] Perguntar “Gostaria de saber quais são minhas chances de ter o visto americano aprovado?”.
+[ ] Confirmar menção a perfil, DS-160, propósito, entrevista e decisão consular.
+[ ] Confirmar ausência de percentual, promessa ou garantia.
+
+D. E-MAILS SEM INTERAÇÃO ÚTIL
+[ ] Apenas abrir o site: nenhum e-mail.
+[ ] Abrir a orientação e não preencher nome: nenhum e-mail.
+[ ] Informar nome e não fazer pergunta: nenhum e-mail por inatividade.
+[ ] Informar nome e não fazer pergunta: nenhum e-mail ao sair da página.
+[ ] Informar nome e não fazer pergunta: nenhum e-mail ao encerrar.
+[ ] Confirmar report_message_id “skipped:no-question” na sessão encerrada.
+
+E. E-MAILS ÚTEIS
+[ ] Fazer pergunta e aguardar inatividade: um relatório.
+[ ] Fazer pergunta e encerrar: um relatório.
+[ ] Fazer pergunta e sair: um relatório.
+[ ] Clicar no WhatsApp: relatório de pedido explícito de contato.
+[ ] Confirmar pergunta integral e resposta correspondente no e-mail.
+[ ] Confirmar ausência de duplicidade para a mesma sessão.
+
+F. PAINEL
+[ ] Campo de mensagem sem resposta aparece em Configurações.
+[ ] Alterar a mensagem e confirmar uso público.
+[ ] Aviso de resposta literal aparece no editor.
+[ ] Variações informam que devem ser frases completas.
+[ ] Palavras-chave informam que não selecionam respostas.
+
+G. TESTES TÉCNICOS
+[ ] Executar npm run check.
+[ ] Executar npm test.
+[ ] Confirmar 6 testes aprovados.

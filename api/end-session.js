@@ -30,10 +30,14 @@ export default async function handler(req, res) {
   }
 
   if (storedSession.report_sent_at) {
+    const skipped = String(storedSession.report_message_id || "").startsWith("skipped:");
     return res.status(200).json({
       ok: true,
-      alreadySent: true,
-      emailSent: true,
+      alreadySent: !skipped,
+      alreadyHandled: true,
+      skipped,
+      noQuestions: skipped,
+      emailSent: !skipped,
       messageId: storedSession.report_message_id || null
     });
   }

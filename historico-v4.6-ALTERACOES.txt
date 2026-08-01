@@ -1,0 +1,39 @@
+ALTERAÇÕES V4.6 — ORIENTAÇÃO RESUMINDO
+======================================
+
+IDENTIDADE E EXPERIÊNCIA
+- Removido o botão flutuante independente de WhatsApp ao lado da ferramenta.
+- Botão público alterado para “Tire suas dúvidas”.
+- Título interno alterado para “Orientação Resumindo”.
+- Removida a aparência convencional de chatbot.
+- A orientação abre em uma área central com fundo discretamente desfocado; o botão de abertura desaparece enquanto a área está aberta.
+- Removidos tópicos, perguntas sugeridas, chips e triagem pública.
+- Removido o quadro “Triagem concluída” e o código público de atendimento.
+- Perguntas e respostas exibidas em cartões editoriais, preservando toda a área de leitura.
+
+CADASTRO E PRIVACIDADE
+- Nome obrigatório antes do início.
+- Telefone e e-mail opcionais.
+- Aviso de encaminhamento da conversa à equipe.
+- Aviso expresso para não inserir CPF, passaporte, documentos, protocolos, senhas, dados bancários ou informações sensíveis.
+
+POSICIONAMENTO PREMIUM
+- Prompt reescrito para responder dúvidas gerais de forma útil, discreta e individualizada.
+- A orientação não se identifica como robô, IA ou chatbot.
+- Casos que dependem de documentos, histórico, datas, preços ou análise pessoal são aprofundados pelo atendimento humano.
+
+RELATÓRIOS
+- Envio para contato@resumindoviagens.com.br ao clicar no WhatsApp.
+- Envio após 15 minutos sem interação.
+- Envio ao sair da página ou encerrar manualmente.
+- Recuperação diária de relatórios não enviados.
+- E-mail com resumo objetivo, contatos opcionais, perguntas integrais, respostas correspondentes e transcrição técnica.
+
+BANCO E ADMINISTRAÇÃO
+- Novas colunas visitor_phone, visitor_email e report_reason.
+- Novas RPCs create_guidance_session e touch_guidance_session.
+- Painel renomeado para “Painel de Orientações”.
+- Histórico legado preservado para evitar regressões.
+
+VERSÃO
+orientacao-resumindo-v4.6
