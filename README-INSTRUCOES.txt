@@ -1,26 +1,35 @@
-RESUMINDO VIAGENS — PAINEL E CHATBOX V4.5
+ORIENTAÇÃO RESUMINDO — VISÃO FUNCIONAL V4.6
+==========================================
 
-ESTE PACOTE FOI RECONSTRUÍDO COM BASE NO ZIP paginaweb-main.zip.
-A pasta assets foi preservada integralmente, inclusive as imagens corrigidas manualmente.
+OBJETIVO
+Oferecer uma orientação inicial elegante e útil, sem aparência de atendimento massificado. A ferramenta esclarece dúvidas gerais e encaminha casos individualizados para contato humano.
 
-PRINCIPAIS RECURSOS:
-- 10 respostas aprovadas no banco inicial
-- triagem condicional
-- respostas da triagem preenchidas no WhatsApp
-- painel administrativo em /admin
-- atendimento humano ao vivo no próprio chatbot
-- edição da base sem novo upload
-- sugestões de respostas humanas com aprovação manual
-- envio de resumo por e-mail
+EXPERIÊNCIA DO VISITANTE
+- Um único botão: “Tire suas dúvidas”.
+- Não há botão flutuante de WhatsApp ao lado.
+- Não há perguntas sugeridas, tópicos, chips ou roteiro de triagem.
+- O nome é obrigatório.
+- Telefone e e-mail são opcionais e apresentados de forma gentil.
+- O aviso informa que a conversa será encaminhada à equipe e orienta a não inserir dados pessoais ou sensíveis.
+- As mensagens aparecem em cartões de “Sua pergunta” e “Orientação Resumindo”, sem bolhas típicas de chatbot.
+- O visitante pode aprofundar o contato pelo WhatsApp quando desejar.
 
-INSTALAÇÃO:
-1. Leia GUIA-INSTALACAO-DETALHADO.md.
-2. Faça backup do repositório atual.
-3. Crie e configure o Supabase exclusivo do chatbot.
-4. Execute supabase/setup.sql.
-5. Cadastre as variáveis do Supabase na Vercel.
-6. Envie o conteúdo interno deste ZIP para a raiz do GitHub.
-7. Aguarde o deployment ficar Ready.
-8. Confira /api/health: a versão deve ser painel-chat-v4.5-recuperacao-sessao.
+RELATÓRIO PARA A EQUIPE
+Destinatário: contato@resumindoviagens.com.br
 
-Não substitua a pasta assets por arquivos de versões anteriores.
+Disparos:
+- clique em “Aprofundar pelo WhatsApp”;
+- 15 minutos sem interação enquanto a página permanece aberta;
+- saída da página após a orientação ter sido iniciada;
+- encerramento manual;
+- rotina diária de recuperação, quando um envio anterior não foi concluído.
+
+Conteúdo:
+- nome e contatos voluntariamente informados;
+- motivo do encerramento;
+- resumo objetivo das perguntas;
+- cada pergunta integral seguida da resposta fornecida;
+- registro técnico completo para auditoria.
+
+PAINEL INTERNO
+O painel /admin foi renomeado para “Painel de Orientações”. Os registros históricos continuam compatíveis. Recursos antigos de triagem foram mantidos apenas no banco/código legado para não quebrar dados já existentes, mas não aparecem na experiência pública.

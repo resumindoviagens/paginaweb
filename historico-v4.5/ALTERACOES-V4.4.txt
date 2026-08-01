@@ -1,0 +1,9 @@
+RESUMINDO VIAGENS — V4.4
+
+- Código único RV para cada triagem.
+- Resumo salvo no Supabase e enviado por e-mail.
+- WhatsApp recebe somente o código curto.
+- Opção de solicitar retorno com primeiro nome, telefone, período e consentimento.
+- Nova área Triagens e retornos no painel.
+- Eventos básicos do chat restaurados.
+- Execute supabase/ATUALIZACAO-V4.4.sql antes do deployment.

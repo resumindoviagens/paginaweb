@@ -56,90 +56,82 @@
 <footer id="contato" class="footer"><div class="container footer-grid"><div><h3>Resumindo Viagens</h3><p>Assessoria em vistos, passaportes, viagens internacionais e produtos turísticos.</p></div><div><h3>Contato</h3><p><a href="https://wa.me/5511981210932" target="_blank">(11) 98121-0932</a></p><p><a href="mailto:contato@resumindoviagens.com.br">contato@resumindoviagens.com.br</a></p><p><a href="https://instagram.com/resumindoviagens" target="_blank">@resumindoviagens</a></p></div></div></footer>
 <div class="modal" id="modal" aria-hidden="true"><div class="modal-backdrop" id="modalBackdrop"></div><div class="modal-card"><button class="modal-close" id="modalClose">×</button><img id="modalImg" src="" alt=""><div class="modal-content"><h2 id="modalTitle"></h2><p id="modalShort"></p><ul id="modalBullets"></ul><p id="modalClosing" class="closing"></p><a id="modalWhats" class="modal-whats" href="https://wa.me/5511981210932" target="_blank">Quero atendimento sobre este serviço</a></div></div></div>
 
-<!-- CHATBOX INTELIGENTE RESUMINDO VIAGENS -->
-<button class="chat-launcher" id="chatLauncher" type="button" aria-label="Abrir Chatbox Resumindo Viagens" aria-expanded="false">
-  <span class="chat-launcher-icon">✦</span>
-  <span>Fale com a Resumindo</span>
+<!-- ORIENTAÇÃO INICIAL RESUMINDO VIAGENS -->
+<button class="guidance-launcher" id="chatLauncher" type="button" aria-label="Abrir orientação da Resumindo Viagens" aria-expanded="false">
+  <span class="guidance-launcher-icon" aria-hidden="true">?</span>
+  <span>Tire suas dúvidas</span>
 </button>
 
-<section class="chatbox" id="chatbox" aria-hidden="true" aria-label="Chatbox Resumindo Viagens">
-  <header class="chatbox-header">
-    <div class="chatbox-brand">
-      <img class="chatbox-logo" src="assets/chat-icon.png" alt="Resumindo Viagens">
+<div class="guidance-backdrop" id="guidanceBackdrop" aria-hidden="true"></div>
+<section class="guidance-panel" id="guidancePanel" aria-hidden="true" aria-label="Orientação Resumindo Viagens">
+  <header class="guidance-header">
+    <div class="guidance-brand">
+      <img class="guidance-logo" src="assets/chat-icon.png" alt="Resumindo Viagens">
       <div>
-        <strong>Chatbox Resumindo Viagens</strong>
-        <small id="chatMode">Iniciando atendimento...</small>
+        <strong>Orientação Resumindo</strong>
+        <small id="chatMode">Informações gerais antes do atendimento personalizado</small>
       </div>
     </div>
-    <button class="chatbox-close" id="chatClose" type="button" aria-label="Minimizar chat">×</button>
+    <button class="guidance-close" id="chatClose" type="button" aria-label="Minimizar orientação">×</button>
   </header>
-<div class="chatbox-profile">
-    <label for="chatName">Como podemos chamar você? <span>(opcional)</span></label>
-    <input id="chatName" maxlength="60" autocomplete="given-name" placeholder="Primeiro nome">
-  </div>
 
-  <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+  <section class="guidance-intro" id="guidanceIntro">
+    <span class="guidance-eyebrow">Atendimento inicial</span>
+    <h2>Tire suas dúvidas com liberdade.</h2>
+    <p class="guidance-intro-copy">Esta é uma etapa de orientação geral. Quando o seu caso exigir análise individual, a equipe dará continuidade diretamente com você.</p>
 
-  <div class="chat-quick" id="chatQuick">
-    <button type="button" data-question="Como funciona a assessoria para o primeiro visto americano?">Primeiro visto</button>
-    <button type="button" data-question="Qual a diferença entre primeiro visto e renovação?">Primeiro visto x renovação</button>
-    <button type="button" data-question="O que é o DS-160?">O que é DS-160?</button>
-    <button type="button" data-question="Quais serviços a Resumindo oferece?">Todos os serviços</button>
-    <button type="button" data-question="Como funciona o seguro viagem?">Seguro viagem</button>
-    <button type="button" id="chatTriage">Iniciar triagem</button>
-  </div>
+    <form class="guidance-profile-form" id="guidanceProfileForm" novalidate>
+      <label for="chatName">Como podemos chamar você? <strong>*</strong></label>
+      <input id="chatName" name="name" maxlength="60" minlength="2" autocomplete="name" placeholder="Seu nome" required>
 
-  <section class="chat-startup-error hidden" id="chatStartupError" aria-live="assertive">
-    <strong>Não foi possível iniciar o atendimento</strong>
-    <p id="chatStartupErrorText">Tente novamente ou continue pelo WhatsApp.</p>
-    <div class="chat-startup-actions">
-      <button id="chatRetry" type="button">Tentar novamente</button>
-      <a id="chatStartupWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Continuar pelo WhatsApp</a>
-    </div>
-  </section>
+      <p class="guidance-contact-invite">Para facilitar um retorno, você pode informar telefone, e-mail ou ambos. Esses campos são opcionais.</p>
+      <div class="guidance-contact-grid">
+        <label for="chatPhone">Telefone ou WhatsApp <span>(opcional)</span>
+          <input id="chatPhone" name="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="(11) 99999-9999">
+        </label>
+        <label for="chatEmail">E-mail <span>(opcional)</span>
+          <input id="chatEmail" name="email" type="email" maxlength="160" autocomplete="email" placeholder="voce@exemplo.com">
+        </label>
+      </div>
 
-  <section class="triage-result hidden" id="chatTriageResult" aria-live="polite">
-    <div class="triage-result-head">
-      <div><strong>Triagem concluída</strong><span>Seu código de atendimento</span></div>
-      <code id="chatTriageCode">—</code>
-    </div>
-    <p class="triage-result-text">O resumo foi salvo e enviado para a equipe. Escolha como prefere continuar.</p>
-    <div class="triage-continuation-actions">
-      <a id="chatTriageWhatsapp" class="triage-primary" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Conversar agora pelo WhatsApp</a>
-      <button id="chatCopyCode" class="triage-secondary" type="button">Copiar código</button>
-      <button id="chatCallbackToggle" class="triage-secondary" type="button">Quero receber contato</button>
-      <button id="chatTriageDismiss" class="triage-secondary triage-chat-continue" type="button">Continuar fazendo perguntas</button>
-    </div>
-    <form id="chatCallbackForm" class="callback-form hidden">
-      <h3>Solicitar contato da equipe</h3>
-      <p>Informe somente os dados necessários para continuarmos este atendimento.</p>
-      <label for="callbackName">Primeiro nome</label>
-      <input id="callbackName" maxlength="60" autocomplete="given-name" required>
-      <label for="callbackPhone">WhatsApp com DDD</label>
-      <input id="callbackPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="(11) 99999-9999" required>
-      <label for="callbackPreference">Melhor período para contato</label>
-      <select id="callbackPreference" required>
-        <option value="">Selecione</option><option value="morning">Manhã</option><option value="afternoon">Tarde</option><option value="evening">Noite</option><option value="any">Qualquer horário</option>
-      </select>
-      <label class="callback-consent"><input id="callbackConsent" type="checkbox" required><span>Autorizo a Resumindo Viagens a entrar em contato comigo pelo WhatsApp para continuar esta solicitação.</span></label>
-      <p class="callback-privacy">O número será usado exclusivamente para este atendimento. Não envie documentos, CPF, número de passaporte ou outras informações sensíveis pelo chatbot.</p>
-      <div class="callback-actions"><button type="submit" id="callbackSubmit">Solicitar contato</button><button type="button" id="callbackCancel" class="triage-secondary">Cancelar</button></div>
-      <p id="callbackStatus" class="callback-status" role="status"></p>
+      <div class="guidance-privacy">
+        <strong>Antes de começar</strong>
+        <p>Uma cópia da conversa será encaminhada à equipe da Resumindo Viagens para acompanhamento. Não envie CPF, número de passaporte, documentos, protocolos, senhas, dados bancários ou outras informações pessoais ou sensíveis. Ao informar telefone ou e-mail, você autoriza o uso somente para a continuidade deste atendimento.</p>
+      </div>
+
+      <button class="guidance-start" id="guidanceStart" type="submit">Começar orientação</button>
+      <p class="guidance-form-status" id="guidanceFormStatus" role="status"></p>
     </form>
+
+    <section class="guidance-startup-error hidden" id="chatStartupError" aria-live="assertive">
+      <strong>Não foi possível iniciar agora</strong>
+      <p id="chatStartupErrorText">Tente novamente em instantes.</p>
+      <button id="chatRetry" type="button">Tentar novamente</button>
+    </section>
   </section>
 
-  <form class="chat-form" id="chatForm">
-    <label class="sr-only" for="chatInput">Digite sua pergunta</label>
-    <textarea id="chatInput" rows="1" maxlength="1200" placeholder="Digite sua dúvida..." required></textarea>
-    <button id="chatSend" type="submit" aria-label="Enviar pergunta">➤</button>
-  </form>
+  <section class="guidance-conversation hidden" id="guidanceConversation">
+    <div class="guidance-session-note">
+      <span>Orientação iniciada para</span>
+      <strong id="guidanceVisitorName">—</strong>
+      <small>Após 15 minutos sem interação, a conversa será encerrada e a cópia será enviada à equipe.</small>
+    </div>
 
-  <div class="chatbox-actions">
-    <button class="chat-human hidden" id="chatHuman" type="button">Falar com atendente aqui</button>
-    <button class="chat-end" id="chatEnd" type="button">Encerrar</button>
-    <a class="chat-whatsapp" id="chatWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener">WhatsApp</a>
-  </div>
-  <p class="chatbox-status" id="chatStatus" role="status"></p>
+    <div class="guidance-messages" id="chatMessages" aria-live="polite"></div>
+
+    <form class="guidance-question-form" id="chatForm">
+      <label for="chatInput">Escreva sua dúvida</label>
+      <textarea id="chatInput" rows="3" maxlength="1200" placeholder="Conte, de forma geral, o que você gostaria de saber..." required></textarea>
+      <button id="chatSend" type="submit">Enviar dúvida</button>
+    </form>
+
+    <div class="guidance-actions">
+      <a class="guidance-whatsapp" id="chatWhatsApp" href="https://wa.me/5511981210932" target="_blank" rel="noopener noreferrer">Aprofundar pelo WhatsApp</a>
+      <button class="guidance-end" id="chatEnd" type="button">Encerrar</button>
+      <button class="guidance-restart hidden" id="chatRestart" type="button">Iniciar nova orientação</button>
+    </div>
+    <p class="guidance-status" id="chatStatus" role="status"></p>
+  </section>
 </section>
 
-<a class="floating" href="https://wa.me/5511981210932" target="_blank">WhatsApp</a><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="script.js"></script></body></html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="script.js"></script></body></html>

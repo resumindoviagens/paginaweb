@@ -1,3 +1,4 @@
+// LEGADO V4.5: mantido apenas para compatibilidade com registros antigos.
 import { authenticatedUser, hasSupabaseConfig, secretSupabaseClient } from "../lib/supabase-server.js";
 const EMAIL_TO = "contato@resumindoviagens.com.br";
 const SITE_URL = "https://www.resumindoviagens.com.br";
@@ -7,7 +8,7 @@ function normalizePhone(value) { let digits = clean(value, 30).replace(/\D/g, ""
 function preferenceLabel(value) { return ({morning:"Manhã",afternoon:"Tarde",evening:"Noite",any:"Qualquer horário"})[value] || ""; }
 async function sendBrevo({ subject, htmlContent, textContent, tag, referenceCode }) {
   if (!process.env.BREVO_API_KEY) return { ok:false, notConfigured:true };
-  const response = await fetch("https://api.brevo.com/v3/smtp/email", { method:"POST", headers:{accept:"application/json","api-key":process.env.BREVO_API_KEY,"content-type":"application/json"}, body:JSON.stringify({sender:{name:"Chatbox Resumindo Viagens",email:EMAIL_TO},to:[{name:"Resumindo Viagens",email:EMAIL_TO}],replyTo:{name:"Resumindo Viagens",email:EMAIL_TO},subject,htmlContent,textContent,tags:[tag],headers:{"X-Triage-Code":referenceCode}}) });
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", { method:"POST", headers:{accept:"application/json","api-key":process.env.BREVO_API_KEY,"content-type":"application/json"}, body:JSON.stringify({sender:{name:"Resumindo Viagens — Orientação",email:EMAIL_TO},to:[{name:"Resumindo Viagens",email:EMAIL_TO}],replyTo:{name:"Resumindo Viagens",email:EMAIL_TO},subject,htmlContent,textContent,tags:[tag],headers:{"X-Triage-Code":referenceCode}}) });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) { console.error("Brevo triage error", response.status, payload); return {ok:false,status:response.status,code:payload?.code||null}; }
   return {ok:true,messageId:payload.messageId||null};

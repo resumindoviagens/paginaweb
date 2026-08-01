@@ -1,54 +1,85 @@
-# Guia de instalação — Painel e Chatbox v4.5
+# Publicação da Orientação Resumindo V4.6
 
-## 1. O que foi preservado
-Este pacote usa o seu `paginaweb-main.zip` como base. A pasta `assets` foi copiada sem substituir, recomprimir ou renomear imagens. Consulte `RELATORIO-IMAGENS-PRESERVADAS.txt`.
+## 1. Backup
 
-## 2. Faça backup
-No GitHub, abra o repositório do website, clique em **Code → Download ZIP** e guarde o arquivo. Não altere o projeto do aplicativo privado.
+Antes da atualização, salve uma cópia do repositório atual e exporte as tabelas do projeto Supabase.
 
-## 3. Crie um Supabase exclusivo
-No Supabase, clique em **New project** e use um nome como `resumindo-chatbox`. Não use o banco que contém clientes. Guarde a senha do banco.
+## 2. Atualização do Supabase
 
-## 4. Ative os logins
-Em **Authentication → Sign In / Providers**, mantenha **Email** habilitado e ative **Anonymous Sign-Ins**.
+No **SQL Editor** do projeto já utilizado pelo site, execute integralmente:
 
-## 5. Crie o administrador
-Em **Authentication → Users → Add user**, crie `contato@resumindoviagens.com.br`, defina uma senha exclusiva e confirme o usuário.
+```text
+supabase/ATUALIZACAO-V4.6.sql
+```
 
-## 6. Execute o SQL
-Abra **SQL Editor → New query**, cole todo o conteúdo de `supabase/setup.sql` e clique em **Run**. O resultado final deve mostrar 10 respostas, 10 perguntas de triagem e 1 administrador. Se administradores aparecer como 0, crie o usuário e rode o SQL novamente.
+O script é idempotente e acrescenta:
 
-## 7. Copie as chaves do Supabase
-Em **Project Settings → API**, copie:
-- Project URL;
-- Publishable key (`sb_publishable_...`) ou `anon`;
-- Secret key (`sb_secret_...`) ou `service_role`.
-Nunca coloque a chave secreta no GitHub ou em capturas de tela.
+- `visitor_phone` e `visitor_email` em `chat_sessions`;
+- `report_reason` para registrar o motivo do encerramento;
+- RPC `create_guidance_session`;
+- RPC `touch_guidance_session`.
 
-## 8. Variáveis na Vercel
-No projeto do website, abra **Settings → Environment Variables** e mantenha:
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL` = `gpt-5-mini`
-- `BREVO_API_KEY`
+Depois, em **Authentication**, confirme que o acesso anônimo permanece habilitado. A orientação usa uma identidade temporária protegida pelas políticas RLS existentes.
 
-Adicione:
-- `SUPABASE_URL` = Project URL
-- `SUPABASE_PUBLISHABLE_KEY` = Publishable/anon key
-- `SUPABASE_SECRET_KEY` = Secret/service_role key
-- `CRON_SECRET` = senha aleatória longa
+## 3. Variáveis da Vercel
 
-Marque Production e Preview. Não use aspas e não escreva `NOME=valor`.
+Confira as variáveis de produção:
 
-## 9. Publique no GitHub
-Extraia este ZIP e envie o conteúdo interno para a raiz do repositório. As pastas `assets`, `admin`, `api`, `lib` e `supabase` precisam ficar na raiz, junto de `index.html`. Faça o commit.
+```text
+OPENAI_API_KEY
+OPENAI_MODEL
+BREVO_API_KEY
+SUPABASE_URL
+SUPABASE_PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY
+CRON_SECRET
+```
 
-## 10. Deployment
-Na Vercel, abra **Deployments** e aguarde o novo deployment ficar **Ready**. Alterações de variáveis só funcionam em deployments novos.
+Use no `CRON_SECRET` uma sequência aleatória longa, sem quebra de linha. Não coloque chaves secretas no HTML, em `script.js` ou no GitHub.
 
-## 11. Testes
-Abra `/api/health`. A versão esperada é `painel-chat-v4.5-recuperacao-sessao` e todos os campos de configuração devem estar `true`.
+## 4. Publicação
 
-Abra `/admin` e entre com o usuário criado no Supabase. Em outra janela anônima, abra o site, fale no chatbot, faça a triagem e teste **Falar com atendente aqui**.
+Substitua os arquivos do repositório pelos arquivos desta pasta e faça o deploy de produção. O `vercel.json` mantém uma rotina diária de recuperação e limpeza. Os disparos imediatos por WhatsApp, inatividade e saída da página são feitos pelo navegador e pelas APIs do projeto.
 
-## 12. Imagens
-Não substitua a pasta `assets` por imagens de pacotes anteriores. Esta versão já contém as imagens exatas do ZIP enviado.
+## 5. Validação técnica
+
+Abra:
+
+```text
+/api/health
+```
+
+O retorno deve conter:
+
+```json
+{
+  "ok": true,
+  "version": "orientacao-resumindo-v4.6",
+  "brevoConfigured": true,
+  "supabaseUrlConfigured": true,
+  "supabasePublishableConfigured": true,
+  "supabaseSecretConfigured": true
+}
+```
+
+## 6. Teste funcional mínimo
+
+1. Abra o site em janela anônima.
+2. Confirme que existe apenas o botão **Tire suas dúvidas** no canto.
+3. Confirme que não existem tópicos ou perguntas sugeridas.
+4. Tente iniciar sem nome e verifique a validação.
+5. Inicie com nome e sem contato; faça uma pergunta.
+6. Faça outro teste com telefone e e-mail.
+7. Clique em **Aprofundar pelo WhatsApp** e confira o e-mail recebido.
+8. Confirme no e-mail a pergunta integral e a resposta correspondente.
+9. Inicie nova orientação, deixe sem interação por 15 minutos e confira o encerramento.
+10. Acesse `/admin` e confirme a visualização do registro e dos contatos opcionais.
+
+## 7. Recuperação
+
+Caso o e-mail não chegue:
+
+- confira `BREVO_API_KEY` e os logs de `/api/end-session`;
+- confira se `CRON_SECRET` está definido;
+- confira os logs de `/api/cleanup` no deploy de produção;
+- verifique no Supabase os campos `report_sent_at`, `report_message_id` e `report_reason` da sessão.

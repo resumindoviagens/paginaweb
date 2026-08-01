@@ -1,0 +1,12 @@
+ARQUIVO HISTÓRICO — INSTRUÇÕES DA V4.4
+Consulte LEIA-ME-PRIMEIRO.txt e LEIA-PRIMEIRO-V4.5.txt para a versão atual.
+
+ATUALIZAÇÃO V4.4 — ORDEM OBRIGATÓRIA
+
+1. Execute supabase/ATUALIZACAO-V4.4.sql no Supabase do chatbot.
+2. Envie todos os arquivos deste ZIP ao GitHub.
+3. Aguarde o deployment da Vercel.
+4. Confira /api/health: painel-chat-v4.4-triagem-retorno.
+5. Teste e-mail, código no WhatsApp, solicitação de retorno e painel.
+
+Não é necessário criar outro Supabase nem alterar as chaves atuais.

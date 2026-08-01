@@ -69,7 +69,7 @@ function extractOutputText(payload) {
 
 function conversationText(messages, question) {
   const lines = (messages || []).slice(-12).map(item => {
-    const label = item.sender_type === "human" ? "Atendente" : item.role === "assistant" ? "Assistente" : "Visitante";
+    const label = item.sender_type === "human" ? "Equipe Resumindo" : item.role === "assistant" ? "Orientação Resumindo" : "Pessoa";
     return `${label}: ${cleanText(item.content, 1600)}`;
   });
   lines.push(`Visitante: ${question}`);
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método não permitido." });
   }
   if (!hasSupabaseConfig()) {
-    return res.status(503).json({ error: "O banco do chatbot ainda não foi configurado." });
+    return res.status(503).json({ error: "O banco da orientação online ainda não foi configurado." });
   }
 
   const user = await authenticatedUser(req);
@@ -146,18 +146,18 @@ export default async function handler(req, res) {
     const best = ranked[0];
 
     if (best && best.score >= 0.73 && best.item.response_mode === "human_only") {
-      answer = `Essa solicitação precisa ser tratada diretamente pela equipe da Resumindo Viagens. Continue pelo WhatsApp: ${WHATSAPP_URL}`;
+      answer = `Essa dúvida precisa de uma análise individual. A equipe da Resumindo Viagens pode aprofundar o atendimento com você pelo WhatsApp: ${WHATSAPP_URL}`;
       source = "human-only";
       metadata = { knowledge_id: best.item.id, match_score: Number(best.score.toFixed(3)) };
     } else if (best && best.score >= 0.73) {
       answer = best.item.answer;
       if (best.item.whatsapp_on && best.item.response_mode === "direct_and_handoff" && asksForHandoff(question) && !answer.includes("wa.me/")) {
-        answer += `\n\nPara análise individual, valores ou contratação, continue com a equipe: ${WHATSAPP_URL}`;
+        answer += `\n\nComo essa parte depende dos detalhes do seu caso, a equipe pode aprofundar o atendimento com você pelo WhatsApp: ${WHATSAPP_URL}`;
       }
       source = "knowledge-direct";
       metadata = { knowledge_id: best.item.id, match_score: Number(best.score.toFixed(3)) };
     } else if (!process.env.OPENAI_API_KEY) {
-      answer = best?.item?.answer || `Não consegui responder essa dúvida com segurança. Fale com a equipe da Resumindo Viagens: ${WHATSAPP_URL}`;
+      answer = best?.item?.answer || `Não encontrei uma orientação segura para essa dúvida geral. A equipe da Resumindo Viagens pode analisar o contexto com você pelo WhatsApp: ${WHATSAPP_URL}`;
       source = best ? "knowledge-fallback" : "human-fallback";
     } else {
       const relatedMatches = ranked.slice(0, 4).filter(match => match.score > .08);
@@ -178,19 +178,22 @@ export default async function handler(req, res) {
       const history = (recent || []).reverse().filter(message => message.id !== userMessage.id);
 
       const instructions = `
-Você é o Chatbox Resumindo Viagens. Responda em português do Brasil, com clareza, acolhimento e objetividade.
+Você faz a orientação inicial da Resumindo Viagens. Responda em português do Brasil, com clareza, acolhimento, discrição e tom profissional.
 
 REGRAS:
-- Responda primeiro. Não encaminhe automaticamente ao WhatsApp.
+- Entregue primeiro uma resposta útil para a dúvida geral apresentada.
+- Não se apresente como chatbot, robô ou inteligência artificial.
 - Use somente as respostas aprovadas fornecidas abaixo e o contexto da conversa.
-- Quando faltar contexto, faça uma pergunta curta de esclarecimento.
-- Encaminhe ao WhatsApp somente para preço, cotação, disponibilidade, contratação, análise individual, regra oficial variável ou atendimento humano.
+- Quando faltar contexto, faça no máximo uma pergunta curta e geral de esclarecimento; não conduza uma triagem longa.
+- O atendimento da Resumindo Viagens é individual e premium. Quando a questão depender de perfil, documentos, datas, valores, disponibilidade, contratação ou regra oficial variável, explique brevemente por que a análise precisa ser personalizada e convide a pessoa a aprofundar o contato com a equipe.
+- Não encaminhe automaticamente ao WhatsApp quando a dúvida puder ser respondida de forma geral.
 - Nunca invente valores, prazos, requisitos, disponibilidade ou garantia de aprovação.
 - Nunca confirme ou negue quem é cliente e nunca acesse, consulte ou altere dados privados.
-- Não solicite CPF, passaporte, visto, DS-160, protocolo, senha, documentos ou comprovantes.
+- Não solicite CPF, número de passaporte, visto, DS-160, protocolo, senha, documentos, comprovantes, dados bancários ou outras informações pessoais ou sensíveis.
 - Se houver conteúdo marcado para revisão ou com validade, não o trate como regra oficial definitiva.
+- Evite linguagem massificada, frases prontas de call center e promessas vagas.
 - Responda normalmente em 3 a 8 frases.
-- Link de atendimento, somente quando necessário: ${WHATSAPP_URL}
+- Link de atendimento, somente quando realmente necessário: ${WHATSAPP_URL}
 
 RESPOSTAS APROVADAS RELACIONADAS:
 ${JSON.stringify(related, null, 2)}
@@ -226,7 +229,7 @@ ${JSON.stringify(related, null, 2)}
         };
       } catch (error) {
         console.error("Chat handler error", error);
-        answer = best?.item?.answer || `Não consegui responder essa dúvida com segurança neste momento. Fale com a equipe da Resumindo Viagens: ${WHATSAPP_URL}`;
+        answer = best?.item?.answer || `Não encontrei uma orientação segura para essa dúvida neste momento. A equipe da Resumindo Viagens pode analisar o contexto com você pelo WhatsApp: ${WHATSAPP_URL}`;
         source = best ? "knowledge-safe-fallback" : "safe-fallback";
       }
     }

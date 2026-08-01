@@ -9,6 +9,6 @@ export default function handler(req, res) {
     configured,
     supabaseUrl: configured ? process.env.SUPABASE_URL : "",
     supabasePublishableKey: configured ? process.env.SUPABASE_PUBLISHABLE_KEY : "",
-    version: "painel-chat-v4.5-recuperacao-sessao"
+    version: "orientacao-resumindo-v4.6"
   });
 }

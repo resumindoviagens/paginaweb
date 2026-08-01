@@ -1,7 +1,7 @@
 -- =============================================================
--- RESUMINDO VIAGENS — CHATBOX DINÂMICO, TRIAGEM, RETORNO E ATENDIMENTO AO VIVO
+-- RESUMINDO VIAGENS — ORIENTAÇÃO INICIAL, BASE DE RESPOSTAS E ATENDIMENTO PERSONALIZADO
 -- Execute este arquivo uma única vez no SQL Editor do projeto Supabase
--- exclusivo do chatbot. O script é idempotente e pode ser executado novamente.
+-- exclusivo da orientação online. O script é idempotente e pode ser executado novamente.
 -- IMPORTANTE: crie antes o usuário administrador em Authentication > Users
 -- com o e-mail contato@resumindoviagens.com.br.
 -- =============================================================
@@ -56,6 +56,8 @@ create table if not exists public.chat_sessions (
   id uuid primary key,
   visitor_id uuid not null references auth.users(id) on delete cascade,
   visitor_name text,
+  visitor_phone text,
+  visitor_email text,
   status text not null default 'bot' check (status in ('bot','waiting_human','human','closed')),
   human_requested boolean not null default false,
   assigned_admin uuid references auth.users(id),
@@ -65,12 +67,16 @@ create table if not exists public.chat_sessions (
   ended_at timestamptz,
   report_sent_at timestamptz,
   report_message_id text,
+  report_reason text,
   triage_id uuid
 );
 create index if not exists chat_sessions_last_activity_idx on public.chat_sessions(last_activity desc);
 create index if not exists chat_sessions_visitor_idx on public.chat_sessions(visitor_id);
 alter table public.chat_sessions add column if not exists report_sent_at timestamptz;
 alter table public.chat_sessions add column if not exists report_message_id text;
+alter table public.chat_sessions add column if not exists visitor_phone text;
+alter table public.chat_sessions add column if not exists visitor_email text;
+alter table public.chat_sessions add column if not exists report_reason text;
 
 create table if not exists public.chat_messages (
   id bigint generated always as identity primary key,
@@ -187,6 +193,47 @@ begin
   where id=p_session_id and visitor_id=auth.uid();
 end; $$;
 
+
+-- V4.6: cria a orientação somente após o nome obrigatório e guarda contatos opcionais.
+create or replace function public.create_guidance_session(
+  p_session_id uuid,
+  p_name text,
+  p_page_url text default null,
+  p_phone text default null,
+  p_email text default null
+)
+returns uuid language plpgsql security definer set search_path=public as $$
+declare
+  v_name text := left(trim(coalesce(p_name,'')),60);
+  v_phone text := nullif(left(regexp_replace(coalesce(p_phone,''),'\D','','g'),20),'');
+  v_email text := nullif(left(lower(trim(coalesce(p_email,''))),160),'');
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  if char_length(v_name) < 2 then raise exception 'name required'; end if;
+  if v_phone is not null and char_length(v_phone) < 10 then raise exception 'invalid phone'; end if;
+  if v_email is not null and v_email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' then raise exception 'invalid email'; end if;
+  if exists(select 1 from public.chat_sessions where id=p_session_id and visitor_id<>auth.uid()) then
+    raise exception 'session belongs to another visitor';
+  end if;
+  insert into public.chat_sessions(id,visitor_id,visitor_name,visitor_phone,visitor_email,page_url)
+  values(p_session_id,auth.uid(),v_name,v_phone,v_email,left(coalesce(p_page_url,''),500))
+  on conflict(id) do update set
+    visitor_name=excluded.visitor_name,
+    visitor_phone=excluded.visitor_phone,
+    visitor_email=excluded.visitor_email,
+    page_url=excluded.page_url,
+    last_activity=now()
+  where public.chat_sessions.visitor_id=auth.uid() and public.chat_sessions.status<>'closed';
+  return p_session_id;
+end; $$;
+
+create or replace function public.touch_guidance_session(p_session_id uuid)
+returns void language plpgsql security definer set search_path=public as $$
+begin
+  update public.chat_sessions set last_activity=now()
+  where id=p_session_id and visitor_id=auth.uid() and status<>'closed';
+end; $$;
+
 create or replace function public.request_chat_human(p_session_id uuid)
 returns void language plpgsql security definer set search_path=public as $$
 declare v_status text;
@@ -275,12 +322,16 @@ grant usage,select on all sequences in schema public to authenticated;
 revoke all on function public.is_chat_admin() from public, anon;
 revoke all on function public.create_chat_session(uuid,text,text) from public, anon;
 revoke all on function public.update_own_chat_name(uuid,text) from public, anon;
+revoke all on function public.create_guidance_session(uuid,text,text,text,text) from public, anon;
+revoke all on function public.touch_guidance_session(uuid) from public, anon;
 revoke all on function public.request_chat_human(uuid) from public, anon;
 revoke all on function public.submit_chat_triage(uuid,jsonb,text,text) from public, anon;
 
 grant execute on function public.is_chat_admin() to authenticated;
 grant execute on function public.create_chat_session(uuid,text,text) to authenticated;
 grant execute on function public.update_own_chat_name(uuid,text) to authenticated;
+grant execute on function public.create_guidance_session(uuid,text,text,text,text) to authenticated;
+grant execute on function public.touch_guidance_session(uuid) to authenticated;
 grant execute on function public.request_chat_human(uuid) to authenticated;
 grant execute on function public.submit_chat_triage(uuid,jsonb,text,text) to authenticated;
 
@@ -293,7 +344,7 @@ on conflict(user_id) do update set email=excluded.email,role='admin',active=true
 insert into public.chat_settings(key,value) values
 ('human_available','false'::jsonb),
 ('whatsapp_number','"5511981210932"'::jsonb),
-('welcome_message','"Olá! Sou o Chatbox Resumindo Viagens. Posso explicar nossos serviços, comparar opções e ajudar na organização inicial do seu atendimento."'::jsonb),
+('welcome_message','"Olá! Esta é a orientação inicial da Resumindo Viagens. Escreva livremente sua dúvida geral."'::jsonb),
 ('retention_days','90'::jsonb)
 on conflict(key) do nothing;
 
