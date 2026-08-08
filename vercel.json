@@ -1,21 +1,17 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/admin",
-      "destination": "/admin/index.html"
-    }
-  ],
+  "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cleanup",
-      "schedule": "0 3 * * *"
+      "path": "/api/alerts/daily",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/travel-automation",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/agenda-automation",
+      "schedule": "0 11 * * *"
     }
   ]
 }

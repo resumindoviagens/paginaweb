@@ -1,0 +1,10 @@
+Correção aplicada:
+- Corrigido erro de build no arquivo app/acesso/[token]/page.js.
+- O botão Próxima estava duplicado no JSX.
+- Agora a página 10 não mostra botão Próxima e o build deve passar.
+
+Atualização:
+1. Descompacte este ZIP.
+2. Suba todo o conteúdo no GitHub.
+3. Commit changes.
+4. Vercel > Redeploy sem cache.

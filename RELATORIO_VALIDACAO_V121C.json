@@ -1,0 +1,28 @@
+{
+  "versao": "V121C",
+  "cron_agenda": "0 11 * * *",
+  "compatibilidade_vercel_hobby": true,
+  "envio_imediato_nao_bloqueante": true,
+  "validacao_sintatica": {
+    "app/api/admin/clients/[id]/route.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "app/api/admin/process-groups/[id]/route.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "app/api/cron/agenda-automation/route.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "app/admin/page.js": {
+      "ok": true,
+      "stderr": ""
+    },
+    "app/page.js": {
+      "ok": true,
+      "stderr": ""
+    }
+  }
+}

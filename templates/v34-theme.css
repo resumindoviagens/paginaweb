@@ -1,0 +1,22 @@
+
+/* V34.1 - Base visual premium */
+
+:root{
+  --rv-blue:#1f2a60;
+  --rv-gold:#f59e0b;
+}
+
+.login-premium{
+  background:#0f172a;
+  color:white;
+}
+
+.email-header{
+  border-radius:24px;
+  overflow:hidden;
+}
+
+.mobile-safe{
+  max-width:100%;
+  height:auto;
+}

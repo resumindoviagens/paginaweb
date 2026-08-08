@@ -1,0 +1,17 @@
+V121B — VERIFICAÇÃO DE DEPLOY
+
+Depois de extrair, a raiz do repositório deve mostrar diretamente:
+- app/
+- components/
+- lib/
+- public/
+- package.json
+- vercel.json
+
+NÃO deve existir uma pasta adicional visto-seguro-main contendo o projeto dentro dela.
+
+Marcadores para confirmar no GitHub antes de aguardar a Vercel:
+- app/admin/page.js: v121B — automações, horários e formulário publicado
+- app/page.js: v121B automações e formulário
+- lib/formSchema.js: perguntas 2.18.a, 7.3.a, 7.11.a e 7.13.a
+- app/acesso/[token]/page.js: Upload de documentos (implementação) desabilitado

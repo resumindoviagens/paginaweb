@@ -1,0 +1,4 @@
+V123 deployment check
+Base: V122 fuso Brasília
+Campos: 7.11.h-j e 7.13.h-j
+Cron Hobby preservado: todos 0 11 * * *

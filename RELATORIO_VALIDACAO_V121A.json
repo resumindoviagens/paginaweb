@@ -1,0 +1,24 @@
+{
+  "versao": "V121A",
+  "resultado": "aprovado nas verificações estáticas",
+  "correcoes_confirmadas": [
+    "Informações prévias sem numeração",
+    "Upload de documentos (implementação) visível e desabilitado",
+    "Numeração iniciada em 1. Início e Dados do Solicitante",
+    "Pergunta 2.18 dividida em 2.18.a até 2.18.f",
+    "Pergunta 7.3 dividida em 7.3.a até 7.3.f",
+    "Pergunta 7.11 dividida em 7.11.a até 7.11.g",
+    "Pergunta 7.13 dividida em 7.13.a até 7.13.g",
+    "Regras de bloqueio automático preservadas",
+    "Compatibilidade com respostas antigas preservada",
+    "Erro de sintaxe que impedia a publicação corrigido"
+  ],
+  "verificacoes": {
+    "arquivos_js_jsx_ts_tsx_analisados": 102,
+    "erros_de_parse_encontrados": 0,
+    "integridade_zip": "verificada após compactação",
+    "build_next_completo": "não executado neste ambiente por indisponibilidade de acesso ao registro npm"
+  },
+  "sql_adicional": false,
+  "sql_v121_ainda_necessario_se_nao_executado": "supabase/migrations/20260726_v121_automacoes_horarios_formulario.sql"
+}

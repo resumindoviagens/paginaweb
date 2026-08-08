@@ -1,0 +1,24 @@
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_PASSWORD=
+NEXT_PUBLIC_SITE_URL=https://visto-seguro.vercel.app
+
+BREVO_API_KEY=
+EMAIL_FROM=contato@resumindoviagens.com.br
+EMAIL_FROM_NAME=Resumindo Viagens
+EMAIL_REPLY_TO=contato@resumindoviagens.com.br
+
+ALERT_EMAIL_FROM=alertas@resumindoviagens.com.br
+ALERT_EMAIL_FROM_NAME=Resumindo Viagens - Alertas
+ALERT_EMAIL_TO=contato@resumindoviagens.com.br
+ALERT_EMAIL_REPLY_TO=contato@resumindoviagens.com.br
+CRON_SECRET=
+
+NEXT_PUBLIC_VIDEO_FORMULARIO=https://i.imgur.com/wCw6196.mp4
+NEXT_PUBLIC_VIDEO_ENTREVISTA=
+
+# V23 - remetente único de todos os emails do sistema
+SYSTEM_EMAIL_FROM=alertas@resumindoviagens.com.br
+SYSTEM_EMAIL_FROM_NAME=Resumindo Viagens
+SYSTEM_EMAIL_REPLY_TO=contato@resumindoviagens.com.br

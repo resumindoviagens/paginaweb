@@ -1,0 +1,5 @@
+export const dynamic = "force-dynamic";
+import { supabaseAdmin } from "../../../../../lib/supabaseAdmin";
+import { requireAdmin } from "../../../../../lib/auth";
+export async function GET(){ const unauthorized=await requireAdmin(); if(unauthorized) return unauthorized; const {data,error}=await supabaseAdmin.from("event_dismissals").select("event_key"); if(error) return Response.json({dismissed:[]}); return Response.json({dismissed:(data||[]).map(i=>i.event_key)},{headers:{"Cache-Control":"no-store"}}); }
+export async function POST(request){ const unauthorized=await requireAdmin(); if(unauthorized) return unauthorized; const body=await request.json(); if(!body.event_key) return Response.json({error:"event_key obrigatório."},{status:400}); const {error}=await supabaseAdmin.from("event_dismissals").upsert({event_key:body.event_key,event_type:body.event_type||"",client_id:body.client_id||null,action:body.action||"treated",dismissed_at:new Date().toISOString()},{onConflict:"event_key"}); if(error) return Response.json({error:error.message},{status:500}); return Response.json({ok:true}); }

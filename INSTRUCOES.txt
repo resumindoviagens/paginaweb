@@ -1,0 +1,21 @@
+
+# HOTFIX FINAL — Cabeçalho Nova York Premium
+
+## 1. Copie o novo arquivo:
+public/email-headers/header-nova-york-v3.png
+
+## 2. Em:
+lib/emailTemplates.js
+
+troque:
+
+header-nova-york-v2.png
+
+por:
+
+header-nova-york-v3.png
+
+## Resultado
+- Emails 01 a 05 ficam com visual fotográfico premium de Nova York.
+- Emails 06 a 10 continuam Orlando.
+- Força limpeza completa de cache do Gmail/navegador.

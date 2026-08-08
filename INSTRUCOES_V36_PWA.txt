@@ -1,0 +1,21 @@
+
+# V36 — PWA / App no celular
+
+Adicionar em app/layout.js:
+
+export const metadata = {
+  manifest: "/manifest.json",
+  themeColor: "#1f2a60"
+};
+
+Familias:
+Ao salvar o icone no celular, usar nomes como:
+- Resumindo - Joao
+- Resumindo - Maria
+- Resumindo - Pedro
+
+iPhone:
+Safari -> Compartilhar -> Adicionar a Tela de Inicio
+
+Android:
+Chrome normalmente sugere instalar automaticamente.

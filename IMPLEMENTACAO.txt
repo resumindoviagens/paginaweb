@@ -1,0 +1,8 @@
+IMPLEMENTAÇÕES APROVADAS
+
+- camada pós-agendamento
+- pesquisa autenticada nível 2
+- feedbacks
+- logs automáticos
+- checklist operacional
+- nova etapa: passaporte devolvido

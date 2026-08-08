@@ -1,16 +1,16 @@
 {
-  "name": "resumindo-viagens-orientacao",
-  "version": "4.7.0",
+  "name": "resumindo-viagens-completo",
+  "version": "5.3.1",
   "private": true,
-  "type": "module",
-  "engines": {
-    "node": ">=20"
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.1"
-  },
-  "scripts": {
-    "check": "node --check script.js && node --check admin/admin.js && node --check api/chat.js && node --check api/end-session.js && node --check api/config.js && node --check api/health.js && node --check api/cleanup.js && node --check api/triage-contact.js && node --check lib/session-report.js && node --check lib/knowledge.js && node --check lib/answer-matcher.js",
-    "test": "node --test tests/*.test.mjs"
+    "@supabase/supabase-js": "2.45.4",
+    "next": "14.2.23",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }

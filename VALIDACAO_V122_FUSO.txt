@@ -1,0 +1,5 @@
+Cenário validado:
+Entrada: 2026-09-22T08:00:00+00:00
+Email esperado: 22/09/2026, 08:00
+ICS esperado: DTSTART;TZID=America/Sao_Paulo:20260922T080000
+Fim esperado: DTEND;TZID=America/Sao_Paulo:20260922T090000
